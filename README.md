@@ -1,14 +1,6 @@
-# You've added your first Readme file!
-A README.md file is intended to quickly orient readers to what your project can do.  New to Markdown? [Learn more](http://go.microsoft.com/fwlink/p/?LinkId=524306&clcid=0x409)
+# FormEngine
 
-## Edit this README and commit your change to a topic branch
-In Git, branches are cheap.  You should use them whenever you're making changes to your repository.  Edit this file by clicking on the edit icon.
-
-Then make some changes to this README file.
-
-> Make some **edits** to _this_ blockquote
-
-When you are done, click the dropdown arrow next to the save button - that will allow you to commit your changes to a new branch.
+A light weight and highly configurable pdf generation tool.
 
 ## Create a pull request to contribute your changes back into master
 Pull requests are the way to move changes from a topic branch back into the master branch.
@@ -30,3 +22,5 @@ If you haven't done so yet:
 Then clone this repo to your local machine to get started with your own project.
 
 Happy coding!
+
+[Learn more about markdown](http://go.microsoft.com/fwlink/p/?LinkId=524306&clcid=0x409)

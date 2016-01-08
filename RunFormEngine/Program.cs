@@ -63,9 +63,6 @@ namespace RunFormEngine
             {
                 IFiles Files = new Folder(".");
 
-                IValues Values;
-                Values = new XmlValues(Files, formName + ".xml");
-
                 string outFileName;
                 if (string.IsNullOrEmpty(outputFile))
                     outFileName = Path.ChangeExtension(formName, "pdf");
@@ -75,7 +72,7 @@ namespace RunFormEngine
                 FileStream OutStream = new FileStream(outFileName, FileMode.Create);
                 Document builder = new Document(OutStream, Files);
 
-                MakeForm form = new MakeForm(Files, new List<IValues> { Values });
+                MakeForm form = new MakeForm(Files);
 
                 form.Execute(formName, builder);
 

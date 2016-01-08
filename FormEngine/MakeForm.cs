@@ -17,6 +17,13 @@ namespace FormEngine
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
 
+        public MakeForm(IFiles files)
+        {
+            this.files = files;
+            this.values = null;
+        }
+
+
         public MakeForm(IFiles files, IEnumerable<IValues> values)
         {
             this.files = files;
@@ -46,6 +53,8 @@ namespace FormEngine
         {
             this.builder = builder;
             currentPage = null;
+            if (values == null)
+                values = new List<IValues> () { new TestValues(formSpec)};
 
             foreach (IValues v in values)
                 if (!ExecuteForm(formSpec, v))

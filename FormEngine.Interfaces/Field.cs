@@ -6,5 +6,6 @@
         public string format;
         public decimal width;
         public decimal height;
+        public string testValue;
     }
 }

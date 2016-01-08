@@ -1,0 +1,24 @@
+﻿{
+  'pages': [
+    {
+      'pageSize': 'A4',
+      'x': '0.5',
+      'y': '0.5',
+      'fontStyle': 'Bold',
+      'sections': [
+        {
+          'x': '1',
+          'y': '2',
+          'fields': [
+            {
+              'name': 'v1',
+              'x': '3',
+              'y': '4',
+              'testValue': 'XXX'
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

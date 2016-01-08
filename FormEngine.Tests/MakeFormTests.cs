@@ -97,5 +97,36 @@ namespace FormEngine.Tests
             Assert.AreEqual(3.2M, t2.y);
             Assert.AreEqual("red", t2.colour);
         }
+
+        [TestMethod]
+        public void TestValues()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                pages = new List<Page>() {
+                        new Page() {
+                            sections = new List<Section>() {
+                                new Section() { 
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { name="v1", testValue="x" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            MakeForm maker = new MakeForm(files);
+            FakeFormBuilder builder = new FakeFormBuilder();
+
+            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.AreEqual(1, builder.pages.Count);
+            Assert.AreEqual(1, builder.pages[0].texts.Count, "Wrong number of fields");
+
+            FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v1");
+            Assert.AreEqual("x", t1.text);
+        }
+
     }
 }

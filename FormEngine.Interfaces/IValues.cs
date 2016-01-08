@@ -10,6 +10,5 @@ namespace FormEngine.Interfaces
     public interface IValues
     {
         string Get(string valueName, string format = null);
-        //public string SubSet(string name);
     }
 }

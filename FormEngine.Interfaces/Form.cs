@@ -10,5 +10,10 @@ namespace FormEngine.Interfaces
     {
         public string formTitle;
         public List<Page> pages;
+
+        public IEnumerable<IValues> TestValues()
+        {
+            return new List<IValues>() { new TestValues(this) };
+        }
     }
 }

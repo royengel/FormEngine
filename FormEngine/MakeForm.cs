@@ -52,7 +52,7 @@ namespace FormEngine
                                 new Section() {
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 1, y = 1, width=15, name = "exception", colour = ColourName.Red, font = "Impact", fontSize = 18M }
+                                        new Field() { x = 2, y = 2, width=18, name = "exception", colour = ColourName.Red, font = "Arial", fontSize = 10 }
                                     }
                                 }
                             }
@@ -98,19 +98,43 @@ namespace FormEngine
         {
             currentPage = builder.AddPage(page.pageSize);
 
-            foreach (Section section in page.sections)
-                if (!ExecuteSection(formSpec, page, section, v))
-                    return false;
+            if (!string.IsNullOrEmpty(page.backgroundImage))
+                currentPage.AddImage(files, page.backgroundImage, 0, 0, currentPage.GetWidth(), currentPage.GetHeight());
+
+            if (page.sections != null)
+                foreach (Section section in page.sections)
+                    if (!ExecuteSection(formSpec, page, section, v))
+                        return false;
 
             return true;
         }
 
         private bool ExecuteSection(Form formSpec, Page page, Section section, IValues v)
         {
-            foreach (Field field in section.fields)
-                if (!ExecuteField(formSpec, page, section, field, v))
-                    return false;
+            if(section.images != null)
+                foreach (Image image in section.images)
+                    if (!ExecuteIamge(formSpec, page, section, image, v))
+                        return false;
 
+            if (section.fields != null)
+                foreach (Field field in section.fields)
+                    if (!ExecuteField(formSpec, page, section, field, v))
+                        return false;
+
+            return true;
+        }
+
+        private bool ExecuteIamge(Form formSpec, Page page, Section section, Image image, IValues v)
+        {
+            try
+            {
+                currentPage.AddImage(files, image.name, image.x, image.y, image.width, image.height);
+            }
+            catch (Exception ex)
+            {
+                WriteException(ex, "Error when processing image: " + image.name);
+                return false;
+            }
             return true;
         }
 
@@ -162,7 +186,7 @@ namespace FormEngine
             if(currentPage == null)
                 currentPage = builder.AddPage(PageSize.A4);
 
-            currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 18, FontStyle.Bold, ColourName.Black, 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
+            currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 12, FontStyle.Bold, ColourName.Black, 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
         }
     }
 }

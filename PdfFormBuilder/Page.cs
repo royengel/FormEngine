@@ -3,6 +3,9 @@ using FormEngine.Interfaces;
 using PdfSharp.Pdf;
 using PdfSharp.Drawing;
 using PdfSharp.Drawing.Layout;
+using System.Drawing;
+using System.IO;
+using System.Collections.Generic;
 
 namespace FormEngine.PdfFormBuilder
 {
@@ -22,10 +25,27 @@ namespace FormEngine.PdfFormBuilder
 
         public void AddImage(IFiles files, string file, decimal x, decimal y, decimal width, decimal height)
         {
-            throw new NotImplementedException();
+            XImage xImg = MakeXImage(files, file);
+            XRect rectangle = new XRect() { X = XUnit.FromCentimeter((double)x), Y = XUnit.FromCentimeter((double)y), Width = XUnit.FromCentimeter((double)width), Height = XUnit.FromCentimeter((double)height) };
+            xGraphics.DrawImage(xImg, rectangle);
         }
 
-        public void AddText(string fieldName, string text, string alignment, string font, decimal fontSize, FontStyle fontStyle, ColourName colour, decimal x, decimal y, decimal width, decimal height)
+        private static Dictionary<string, XImage> imageCache = new Dictionary<string, XImage>();
+        private static XImage MakeXImage(IFiles files, string file)
+        {
+            XImage xImg;
+            if (!imageCache.TryGetValue(file, out xImg))
+            {
+                byte[] imgFile = files.Get(file);
+                Stream imgStream = new MemoryStream(imgFile);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(imgStream);
+                xImg = XImage.FromGdiPlusImage(image);
+                imageCache[file] = xImg;
+            }
+            return xImg;
+        }
+
+        public void AddText(string fieldName, string text, string alignment, string font, decimal fontSize, Interfaces.FontStyle fontStyle, ColourName colour, decimal x, decimal y, decimal width, decimal height)
         {
             XFontStyle style = ConvertFontStyle(fontStyle);
             XFont xFont = new XFont(font, (double) fontSize, style);
@@ -390,7 +410,7 @@ namespace FormEngine.PdfFormBuilder
             }
         }
 
-        private XFontStyle ConvertFontStyle(FontStyle fontStyle)
+        private XFontStyle ConvertFontStyle(Interfaces.FontStyle fontStyle)
         {
             switch (fontStyle)
             {

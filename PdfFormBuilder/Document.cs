@@ -38,7 +38,7 @@ namespace FormEngine.PdfFormBuilder
             {
                 object file = files.Get(fileName);
                 Stream memStream = new MemoryStream((byte[])file);
-                Image image = Image.FromStream(memStream);
+                System.Drawing.Image image = System.Drawing.Image.FromStream(memStream);
                 xImg = XImage.FromGdiPlusImage(image);
                 xImages[fileName] = xImg;
             }

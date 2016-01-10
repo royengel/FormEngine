@@ -48,6 +48,7 @@
     <Compile Include="IFiles.cs" />
     <Compile Include="IFormBuilder.cs" />
     <Compile Include="IFormPage.cs" />
+    <Compile Include="Image.cs" />
     <Compile Include="IValues.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="PageSize.cs" />

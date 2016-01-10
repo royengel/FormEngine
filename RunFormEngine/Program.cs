@@ -104,7 +104,10 @@ namespace RunFormEngine
 
             private void OnFileAccess(object sender, FileSystemEventArgs e)
             {
+                watcher.EnableRaisingEvents = false;
+                Thread.Sleep(300);
                 Program.MakePdf(formName, outFileName);
+                watcher.EnableRaisingEvents = true;
             }
         }
 
@@ -113,14 +116,16 @@ namespace RunFormEngine
             try
             {
                 IFiles Files = new Folder(".");
+                bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {
                     Document builder = new Document(OutStream, Files);
                     MakeForm form = new MakeForm(Files);
-                    form.Execute(formName, builder);
+                    ok = form.Execute(formName, builder);
                     OutStream.Close();
                 }
-                }
+                Console.WriteLine("Produced " + outFileName + (ok ? " successfully!" : " with errors!"));
+            }
             catch (Exception ex)
             {
                 Console.WriteLine("Exception: " + ex.Message);

@@ -15,5 +15,10 @@ namespace FormEngine.Tests.Helpers
             pages.Add(new FakeFormPage(pageSize.ToString()));
             return pages.Last();
         }
+
+        public bool Finalize()
+        {
+            return true;
+        }
     }
 }

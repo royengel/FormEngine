@@ -6,7 +6,7 @@
         public string font;
         public FontStyle fontStyle;
         public decimal fontSize;
-        public string colour;
+        public ColourName colour;
         public decimal x;
         public decimal y;
     }

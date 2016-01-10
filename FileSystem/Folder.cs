@@ -19,9 +19,12 @@ namespace FormEngine.FileSystem
 
         public byte[] Get(string name)
         {
-            if (name.IndexOf(Path.DirectorySeparatorChar) >= 0 || name.IndexOf(Path.AltDirectorySeparatorChar) >= 0)
-                return File.ReadAllBytes(name);
-            return File.ReadAllBytes(_path + Path.DirectorySeparatorChar + name);
+            return File.ReadAllBytes(Path.Combine(_path, name));
+        }
+
+        public string GetText(string name)
+        {
+            return File.ReadAllText(Path.Combine(_path, name));
         }
     }
 }

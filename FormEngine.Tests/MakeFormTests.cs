@@ -14,8 +14,8 @@ namespace FormEngine.Tests
         [TestMethod]
         public void Basics()
         {
-            FakeFiles files = new FakeFiles() { files = {
-                    { "form1.json", Encoding.UTF8.GetBytes(
+            FakeFiles files = new FakeFiles() { textFiles = {
+                    { "form1.json", 
                         @"{
                             'pages':
                             [
@@ -42,7 +42,7 @@ namespace FormEngine.Tests
                                     ]
                                 }
                             ]
-                          }") } } };
+                          }" } } };
             List<IValues> values = new List<IValues> { new Values(new Dictionary<string, object> { { "v1", "1" } }) };
             MakeForm maker = new MakeForm(files, values);
             FakeFormBuilder builder = new FakeFormBuilder();
@@ -64,12 +64,12 @@ namespace FormEngine.Tests
             {
                 formTitle = "title1", x = .2M, y = .4M,
                 pages = new List<Page>() {
-                        new Page() { pageSize = PageSize.A4, x = -.1M, y = -.2M, colour = "red", 
+                        new Page() { pageSize = PageSize.A4, x = -.1M, y = -.2M, colour = ColourName.Red, 
                             sections = new List<Section>() {
                                 new Section() { x = 1, y = 2,
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 4, y = 8, colour = "blue", name="v1" },
+                                        new Field() { x = 4, y = 8, colour = ColourName.Blue, name="v1" },
                                         new Field() { x = 1, y = 1, name = "v2" }
                                     }
                                 }

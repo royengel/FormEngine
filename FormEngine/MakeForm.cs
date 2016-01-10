@@ -35,22 +35,41 @@ namespace FormEngine
             this.builder = builder;
             currentPage = null;
             Form formSpec = null;
+            bool ok = true;
             try
             {
-                string json = Encoding.UTF8.GetString(files.Get(form + ".json"));
+                string json = files.GetText(form + ".json");
                 formSpec = JsonConvert.DeserializeObject<Form>(json);
             }
             catch(Exception ex)
             {
-                WriteException(ex, "Error when initializing");
-                return false;
+                formSpec = new Form()
+                {
+                    formTitle = "Internal error",
+                    pages = new List<Page>() {
+                        new Page() { pageSize = PageSize.A4,
+                            sections = new List<Section>() {
+                                new Section() {
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { x = 1, y = 1, width=15, name = "exception", colour = ColourName.Red, font = "Impact", fontSize = 18M }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+                values = new List<IValues> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
+
+                ok = false;
             }
 
-            return Execute(formSpec, builder);
+            return Execute(formSpec, builder) && ok;
         }
 
         public bool Execute(Form formSpec, IFormBuilder builder)
         {
+            bool ok = true;
             this.builder = builder;
             currentPage = null;
             if (values == null)
@@ -58,9 +77,12 @@ namespace FormEngine
 
             foreach (IValues v in values)
                 if (!ExecuteForm(formSpec, v))
-                    return false;
+                {
+                    ok = false;
+                    break;
+                }
 
-            return true;
+            return builder.Finalize() && ok;
         }
 
         private bool ExecuteForm(Form formSpec, IValues v)
@@ -111,17 +133,25 @@ namespace FormEngine
         private FieldProperties GetFieldDefaults(Form formSpec, Page page, Section section, Field field)
         {
             FieldProperties p = new FieldProperties();
-            p.alignment = field.alignment ?? section.alignment ?? page.alignment ?? formSpec.alignment;
-            p.colour = field.colour ?? section.colour ?? page.colour ?? formSpec.colour;
-            p.font = field.font ?? section.font ?? page.font ?? formSpec.font;
+            p.alignment = field.alignment ?? section.alignment ?? page.alignment ?? formSpec.alignment ?? "Left";
+
+            p.colour = field.colour != ColourName.Undefined ? field.colour
+                    : (section.colour != ColourName.Undefined ? section.colour
+                    : (page.colour != ColourName.Undefined ? page.colour
+                    : (formSpec.colour != ColourName.Undefined ? formSpec.colour
+                    : ColourName.Black)));
+
+            p.font = field.font ?? section.font ?? page.font ?? formSpec.font ?? "Arial";
             p.fontSize = field.fontSize != 0 ? field.fontSize 
                     : (section.fontSize != 0 ? section.fontSize 
-                    : (page.fontSize != 0 ? page.fontSize 
-                    : formSpec.fontSize));
+                    : (page.fontSize != 0 ? page.fontSize
+                    : (formSpec.fontSize != 0 ? formSpec.fontSize
+                    : 12)));
             p.fontStyle = field.fontStyle != FontStyle.Undefined ? field.fontStyle 
                     : (section.fontStyle != FontStyle.Undefined ? section.fontStyle 
                     : (page.fontStyle != FontStyle.Undefined ? page.fontStyle 
-                    : formSpec.fontStyle));
+                    : (formSpec.fontStyle != FontStyle.Undefined ? formSpec.fontStyle
+                    : FontStyle.Regular)));
             p.x = field.x + section.x + page.x + formSpec.x;
             p.y = field.y + section.y + page.y + formSpec.y;
             return p;
@@ -132,7 +162,7 @@ namespace FormEngine
             if(currentPage == null)
                 currentPage = builder.AddPage(PageSize.A4);
 
-            currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 18, FontStyle.Bold, "red", 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
+            currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 18, FontStyle.Bold, ColourName.Black, 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
         }
     }
 }

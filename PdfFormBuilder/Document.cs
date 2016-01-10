@@ -45,5 +45,10 @@ namespace FormEngine.PdfFormBuilder
             return xImg;
         }
 
+        public bool Finalize()
+        {
+            document.Close();
+            return true;
+        }
     }
 }

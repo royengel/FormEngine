@@ -10,10 +10,16 @@ namespace FormEngine.Tests.Helpers
     public class FakeFiles : IFiles
     {
         public readonly Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
+        public readonly Dictionary<string, string> textFiles = new Dictionary<string, string>();
 
         public byte[] Get(string name)
         {
             return files[name];
+        }
+
+        public string GetText(string name)
+        {
+            return textFiles[name];
         }
     }
 }

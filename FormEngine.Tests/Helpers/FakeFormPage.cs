@@ -32,14 +32,14 @@ namespace FormEngine.Tests.Helpers
         public string font;
         public decimal fontSize;
         public string fontStyle;
-        public string colour;
+        public ColourName colour;
         public decimal height;
         public string text;
         public decimal width;
         public decimal x;
         public decimal y;
 
-        public FormText(string fieldName, string text, string alignment, string font, decimal fontSize, string fontStyle, string colour, decimal x, decimal y, decimal width, decimal height)
+        public FormText(string fieldName, string text, string alignment, string font, decimal fontSize, string fontStyle, ColourName colour, decimal x, decimal y, decimal width, decimal height)
         {
             this.fieldName = fieldName;
             this.text = text;
@@ -71,7 +71,7 @@ namespace FormEngine.Tests.Helpers
             images.Add(new FormImage(file, x, y, width, height));
         }
 
-        public void AddText(string fieldName, string text, string alignment, string font, decimal FontSize, FontStyle fontStyle, string colour, decimal x, decimal y, decimal width, decimal height)
+        public void AddText(string fieldName, string text, string alignment, string font, decimal FontSize, FontStyle fontStyle, ColourName colour, decimal x, decimal y, decimal width, decimal height)
         {
             texts.Add(new FormText(fieldName, text, alignment, font, FontSize, fontStyle.ToString(), colour, x, y, width, height));
         }

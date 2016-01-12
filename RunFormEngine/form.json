@@ -1,20 +1,44 @@
 ﻿{
-  'pages': [
+  "pages": [
     {
-      'pageSize': 'A4',
-      'x': '0.5',
-      'y': '0.5',
-      'fontStyle': 'Bold',
-      'sections': [
+      "pageSize": "A4",
+      "fontSize": "12",
+      "backgroundImage": "subtle-bg.jpg",
+      "sections": [
         {
-          'x': '1',
-          'y': '2',
-          'fields': [
+          "images": [
             {
-              'name': 'v1',
-              'x': '3',
-              'y': '4',
-              'testValue': 'XXX'
+              "name": "eika.png",
+              "x": "14",
+              "y": "2",
+              "width": "4",
+              "height": "2"
+            }
+          ],
+          "fields": [
+            {
+              "name": "v1",
+              "x": "3",
+              "y": "3",
+              "fontSize": "22",
+              "colour": "Red",
+              "fontStyle": "Bold",
+              "testValue": "Lorem Ipsum"
+            },
+            {
+              "name": "v4",
+              "x": "3",
+              "y": "4",
+              "fontStyle": "Italic",
+              "testValue": "Ut vel felis dui"
+            },
+            {
+              "name": "v2",
+              "x": "3",
+              "y": "5",
+              "width": "15",
+              "height": "15",
+              "testValue": "Duis purus metus, ultricies a hendrerit sit amet, aliquam sed nisl. Ut vel felis dui. Nulla dignissim cursus neque, eu pretium nulla finibus quis. Etiam a vestibulum diam, vel mattis turpis. In eleifend purus vitae massa congue, in efficitur lacus scelerisque. In faucibus diam eu lorem tempus venenatis. Quisque a vestibulum augue. Etiam luctus eros eu vulputate cursus. Aenean id eros lectus. Sed porta lacus urna, sed imperdiet erat elementum ut. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris id viverra nisl. Proin mollis non velit ac iaculis.\n\nCras sed interdum ex. Vestibulum ut hendrerit ligula. In ipsum turpis, consectetur et purus sed, aliquet varius nibh. Nulla facilisi. Donec gravida ornare malesuada. Integer pulvinar orci et leo condimentum, sed bibendum magna rhoncus. Phasellus eget mi ex. Curabitur congue elit vitae tempor laoreet. Aenean sed metus sed dui consequat vehicula.\n\nAenean sed ipsum eu erat eleifend sodales eu at nunc. Sed ac ex non turpis rutrum euismod a ut lacus. Maecenas ut ante faucibus ante egestas facilisis. Fusce eleifend rhoncus neque pellentesque rutrum. Morbi lacus ligula, efficitur non est id, lacinia facilisis lacus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc malesuada condimentum diam, sed ultrices velit suscipit sit amet."
             }
           ]
         }

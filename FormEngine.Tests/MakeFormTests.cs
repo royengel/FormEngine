@@ -89,13 +89,13 @@ namespace FormEngine.Tests
             Assert.AreEqual("1", t1.text);
             Assert.AreEqual(5.1M, t1.x);
             Assert.AreEqual(10.2M, t1.y);
-            Assert.AreEqual("blue", t1.colour);
+            Assert.AreEqual(ColourName.Blue, t1.colour);
 
             FormText t2 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v2");
             Assert.AreEqual("2", t2.text);
             Assert.AreEqual(2.1M, t2.x);
             Assert.AreEqual(3.2M, t2.y);
-            Assert.AreEqual("red", t2.colour);
+            Assert.AreEqual(ColourName.Red, t2.colour);
         }
 
         [TestMethod]

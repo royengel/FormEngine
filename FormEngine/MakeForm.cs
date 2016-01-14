@@ -16,6 +16,7 @@ namespace FormEngine
 
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
+        private BreakChecker breakChecker = new BreakChecker();
 
         public MakeForm(IFiles files)
         {
@@ -76,12 +77,15 @@ namespace FormEngine
                 values = new List<IValues> () { new TestValues(formSpec)};
 
             foreach (IValues v in values)
+            {
+                breakChecker.IterateTo(v);
+
                 if (!ExecuteForm(formSpec, v))
                 {
                     ok = false;
                     break;
                 }
-
+            }
             return builder.Finalize() && ok;
         }
 
@@ -93,14 +97,22 @@ namespace FormEngine
 
             return true;
         }
-
+        long interationOnCurrentPage = 0;
         private bool ExecutePage(Form formSpec, Page page, IValues v)
         {
-            currentPage = builder.AddPage(page.pageSize);
+            if (breakChecker.IsBreak(page.breakColumns))
+            {
+                currentPage = builder.AddPage(page.pageSize);
 
-            if (!string.IsNullOrEmpty(page.backgroundImage))
-                currentPage.AddImage(files, page.backgroundImage, 0, 0, currentPage.GetWidth(), currentPage.GetHeight());
+                if (!string.IsNullOrEmpty(page.backgroundImage))
+                    currentPage.AddImage(files, page.backgroundImage, 0, 0, currentPage.GetWidth(), currentPage.GetHeight());
 
+                interationOnCurrentPage = 0;
+            }
+            else
+            {
+                interationOnCurrentPage++;
+            }
             if (page.sections != null)
                 foreach (Section section in page.sections)
                     if (!ExecuteSection(formSpec, page, section, v))
@@ -111,16 +123,18 @@ namespace FormEngine
 
         private bool ExecuteSection(Form formSpec, Page page, Section section, IValues v)
         {
-            if(section.images != null)
-                foreach (Image image in section.images)
-                    if (!ExecuteIamge(formSpec, page, section, image, v))
-                        return false;
+            if (interationOnCurrentPage == 0 || breakChecker.IsBreak(section.breakColumns))
+            {
+                if (section.images != null)
+                    foreach (Image image in section.images)
+                        if (!ExecuteIamge(formSpec, page, section, image, v))
+                            return false;
 
-            if (section.fields != null)
-                foreach (Field field in section.fields)
-                    if (!ExecuteField(formSpec, page, section, field, v))
-                        return false;
-
+                if (section.fields != null)
+                    foreach (Field field in section.fields)
+                        if (!ExecuteField(formSpec, page, section, field, v))
+                            return false;
+            }
             return true;
         }
 
@@ -176,9 +190,16 @@ namespace FormEngine
                     : (page.fontStyle != FontStyle.Undefined ? page.fontStyle 
                     : (formSpec.fontStyle != FontStyle.Undefined ? formSpec.fontStyle
                     : FontStyle.Regular)));
-            p.x = field.x + section.x + page.x + formSpec.x;
-            p.y = field.y + section.y + page.y + formSpec.y;
+
+            p.x = CalculateCoordinate(formSpec.x, page.x, section.x, interationOnCurrentPage, section.shiftX, field.x);
+            p.y = CalculateCoordinate(formSpec.y, page.y, section.y, interationOnCurrentPage, section.shiftY, field.y);
+
             return p;
+        }
+
+        private decimal CalculateCoordinate(decimal formOffset, decimal pageOffset, decimal sectionOffset, long iteration, decimal shiftValue, decimal itemCoordinate)
+        {
+            return formOffset + pageOffset + sectionOffset + (iteration * shiftValue) + itemCoordinate;
         }
 
         private void WriteException(Exception ex, string message)

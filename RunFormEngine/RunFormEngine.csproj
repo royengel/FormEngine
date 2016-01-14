@@ -61,10 +61,6 @@
       <Project>{ea811c0f-d9c3-4f75-a622-1906305b0b44}</Project>
       <Name>FormEngine.Interfaces</Name>
     </ProjectReference>
-    <ProjectReference Include="..\FormEngine.XmlSpecification\FormEngine.XmlSpecification.csproj">
-      <Project>{334aa9e8-e219-4131-8e43-f96278abe979}</Project>
-      <Name>FormEngine.XmlSpecification</Name>
-    </ProjectReference>
     <ProjectReference Include="..\FormEngine\FormEngine.csproj">
       <Project>{c335e0c5-36aa-4ab0-bbe3-02b470087f18}</Project>
       <Name>FormEngine</Name>

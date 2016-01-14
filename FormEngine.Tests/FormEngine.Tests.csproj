@@ -50,6 +50,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BreakCheckerTests.cs" />
     <Compile Include="Helpers\FakeFiles.cs" />
     <Compile Include="Helpers\FakeFormBuilder.cs" />
     <Compile Include="Helpers\FakeFormPage.cs" />
@@ -65,6 +66,9 @@
       <Project>{c335e0c5-36aa-4ab0-bbe3-02b470087f18}</Project>
       <Name>FormEngine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FormEngine\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

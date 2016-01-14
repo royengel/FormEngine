@@ -9,6 +9,7 @@ namespace FormEngine.Interfaces
     public class Page : FieldProperties
     {
         public string backgroundImage;
+        public List<string> breakColumns;
         public PageSize pageSize;
         public List<Section> sections;
     }

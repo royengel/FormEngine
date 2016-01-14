@@ -128,5 +128,154 @@ namespace FormEngine.Tests
             Assert.AreEqual("x", t1.text);
         }
 
+        [TestMethod]
+        public void MultiplePages()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                formTitle = "title1",
+                pages = new List<Page>() {
+                        new Page() {
+                            breakColumns = new List<string>() { "v1" },
+                            sections = new List<Section>() {
+                                new Section() {
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { name = "v1" },
+                                        new Field() { name = "v2" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "z" } }) };
+            MakeForm maker = new MakeForm(files, values);
+            FakeFormBuilder builder = new FakeFormBuilder();
+
+            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.AreEqual(2, builder.pages.Count);
+
+            FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v1");
+            Assert.AreEqual("1", t1.text);
+
+            t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("x", t1.text);
+
+            t1 = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("y", t1.text);
+
+            t1 = builder.pages[1].texts.FirstOrDefault(t => t.fieldName == "v1");
+            Assert.AreEqual("2", t1.text);
+
+            t1 = builder.pages[1].texts.FirstOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("z", t1.text);
+        }
+
+        [TestMethod]
+        public void MultipleSections()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                formTitle = "title1",
+                pages = new List<Page>() {
+                        new Page() {
+                            breakColumns = new List<string>() { "v1" },
+                            sections = new List<Section>() {
+                                new Section() {
+                                    breakColumns = new List<string>() { "v1", "v2" },
+                                    shiftX = 1M,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { x = 1M, name = "v1" },
+                                        new Field() { x = 1M, name = "v2" },
+                                        new Field() { x = 1M, name = "v3" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" }, { "v3", "a" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "b" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "c" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "y" }, { "v3", "d" } }) };
+            MakeForm maker = new MakeForm(files, values);
+            FakeFormBuilder builder = new FakeFormBuilder();
+
+            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.AreEqual(2, builder.pages.Count);
+
+            FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v3");
+            Assert.AreEqual("a", t1.text);
+            Assert.AreEqual(1M, t1.x);
+
+            t1 = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v3");
+            Assert.AreEqual("b", t1.text);
+            Assert.AreEqual(2M, t1.x);
+
+            Assert.IsFalse(builder.pages[0].texts.Any(t => t.fieldName == "v3" && t.text == "c"));
+
+        }
+
+        [TestMethod]
+        public void SectionsWithAndWitoutBreak()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                formTitle = "title1",
+                pages = new List<Page>() {
+                        new Page() {
+                            breakColumns = new List<string>() { "v1" },
+                            sections = new List<Section>() {
+                                new Section() {
+                                    breakColumns = new List<string>() { "v1" },
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { x = 1M, name = "v1" }
+                                    }
+                                },
+                                new Section() {
+                                    shiftX = 1M,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { x = 1M, name = "v2" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }) };
+            MakeForm maker = new MakeForm(files, values);
+            FakeFormBuilder builder = new FakeFormBuilder();
+
+            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.AreEqual(1, builder.pages.Count);
+
+            Assert.AreEqual(1, builder.pages[0].texts.Where(t => t.fieldName == "v1").Count());
+            Assert.AreEqual(2, builder.pages[0].texts.Where(t => t.fieldName == "v2").Count());
+
+            FormText ft = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("x", ft.text);
+            Assert.AreEqual(1M, ft.x);
+            ft = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("y", ft.text);
+            Assert.AreEqual(2M, ft.x);
+
+            Assert.IsFalse(builder.pages[0].texts.Any(t => t.fieldName == "v3" && t.text == "c"));
+
+        }
+
+
     }
 }

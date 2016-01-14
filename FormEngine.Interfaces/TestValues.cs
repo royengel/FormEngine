@@ -21,7 +21,7 @@ namespace FormEngine.Interfaces
                     foreach(Field f in s.fields)
                     {
                         if (f.name == valueName)
-                            return f.testValue;
+                            return f.testValue.Trim();
                     }
                 }
             }

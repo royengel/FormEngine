@@ -12,7 +12,7 @@ namespace FormEngine.Tests
     public class MakeFormTests
     {
         [TestMethod]
-        public void Basics()
+        public void MakeForm_Basics()
         {
             FakeFiles files = new FakeFiles() { textFiles = {
                     { "form1.json", 
@@ -57,7 +57,7 @@ namespace FormEngine.Tests
         }
 
         [TestMethod]
-        public void Defaults()
+        public void MakeForm_Defaults()
         {
             FakeFiles files = new FakeFiles();
             Form form = new Form()
@@ -99,7 +99,7 @@ namespace FormEngine.Tests
         }
 
         [TestMethod]
-        public void TestValues()
+        public void MakeForm_TestValues()
         {
             FakeFiles files = new FakeFiles();
             Form form = new Form()
@@ -110,7 +110,7 @@ namespace FormEngine.Tests
                                 new Section() { 
                                     fields = new List<Field>()
                                     {
-                                        new Field() { name="v1", testValue="x" }
+                                        new Field() { name="v1", testValue=" x" }
                                     }
                                 }
                             }
@@ -129,7 +129,7 @@ namespace FormEngine.Tests
         }
 
         [TestMethod]
-        public void MultiplePages()
+        public void MakeForm_MultiplePages()
         {
             FakeFiles files = new FakeFiles();
             Form form = new Form()
@@ -177,7 +177,7 @@ namespace FormEngine.Tests
         }
 
         [TestMethod]
-        public void MultipleSections()
+        public void MakeForm_MultipleSections()
         {
             FakeFiles files = new FakeFiles();
             Form form = new Form()
@@ -190,6 +190,10 @@ namespace FormEngine.Tests
                                 new Section() {
                                     breakColumns = new List<string>() { "v1", "v2" },
                                     shiftX = 1M,
+                                    images = new List<Image>()
+                                    {
+                                        new Image() { x = 3M, name = "i1" }
+                                    },
                                     fields = new List<Field>()
                                     {
                                         new Field() { x = 1M, name = "v1" },
@@ -222,10 +226,14 @@ namespace FormEngine.Tests
 
             Assert.IsFalse(builder.pages[0].texts.Any(t => t.fieldName == "v3" && t.text == "c"));
 
+            FormImage i1 = builder.pages[0].images.FirstOrDefault(t => t.file == "i1");
+            Assert.AreEqual(3M, i1.x);
+            i1 = builder.pages[0].images.LastOrDefault(t => t.file == "i1");
+            Assert.AreEqual(4M, i1.x);
         }
 
         [TestMethod]
-        public void SectionsWithAndWitoutBreak()
+        public void MakeForm_SectionsWithAndWitoutBreak()
         {
             FakeFiles files = new FakeFiles();
             Form form = new Form()

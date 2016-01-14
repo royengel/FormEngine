@@ -14,7 +14,7 @@ namespace FormEngine.Tests
         [TestMethod]
         public void CsvValues_Basics()
         {
-            CsvFile csvFile = MakeCsvFile(@"v1;v2
+            CsvFile csvFile = MakeCsvFile(@"V1;v2
 a;b
 c;d
 ");
@@ -22,7 +22,7 @@ c;d
             IEnumerator<IValues> iterator = values.GetEnumerator();
             Assert.IsTrue(iterator.MoveNext());
             Assert.AreEqual("a", iterator.Current.Get("v1"));
-            Assert.AreEqual("b", iterator.Current.Get("v2"));
+            Assert.AreEqual("b", iterator.Current.Get("V2"));
             Assert.IsTrue(iterator.MoveNext());
             Assert.AreEqual("c", iterator.Current.Get("v1"));
             Assert.AreEqual("d", iterator.Current.Get("v2"));

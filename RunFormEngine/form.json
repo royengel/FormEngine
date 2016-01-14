@@ -4,6 +4,7 @@
       "pageSize": "A4",
       "fontSize": "12",
       "backgroundImage": "subtle-bg.jpg",
+      "breakColumns": ["v1"],
       "sections": [
         {
           "images": [
@@ -26,19 +27,50 @@
               "testValue": "Lorem Ipsum"
             },
             {
-              "name": "v4",
+              "name": "v2",
               "x": "3",
               "y": "4",
               "fontStyle": "Italic",
               "testValue": "Ut vel felis dui"
             },
             {
-              "name": "v2",
+              "name": "v3",
               "x": "3",
               "y": "5",
               "width": "15",
               "height": "15",
-              "testValue": "Duis purus metus, ultricies a hendrerit sit amet, aliquam sed nisl. Ut vel felis dui. Nulla dignissim cursus neque, eu pretium nulla finibus quis. Etiam a vestibulum diam, vel mattis turpis. In eleifend purus vitae massa congue, in efficitur lacus scelerisque. In faucibus diam eu lorem tempus venenatis. Quisque a vestibulum augue. Etiam luctus eros eu vulputate cursus. Aenean id eros lectus. Sed porta lacus urna, sed imperdiet erat elementum ut. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Mauris id viverra nisl. Proin mollis non velit ac iaculis.\n\nCras sed interdum ex. Vestibulum ut hendrerit ligula. In ipsum turpis, consectetur et purus sed, aliquet varius nibh. Nulla facilisi. Donec gravida ornare malesuada. Integer pulvinar orci et leo condimentum, sed bibendum magna rhoncus. Phasellus eget mi ex. Curabitur congue elit vitae tempor laoreet. Aenean sed metus sed dui consequat vehicula.\n\nAenean sed ipsum eu erat eleifend sodales eu at nunc. Sed ac ex non turpis rutrum euismod a ut lacus. Maecenas ut ante faucibus ante egestas facilisis. Fusce eleifend rhoncus neque pellentesque rutrum. Morbi lacus ligula, efficitur non est id, lacinia facilisis lacus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Nunc malesuada condimentum diam, sed ultrices velit suscipit sit amet."
+              "testValue": "Duis purus metus, ultricies a hendrerit sit amet, aliquam sed nisl. Ut vel felis dui. Nulla dignissim cursus neque, eu pretium nulla finibus quis."
+            }
+          ]
+        },
+        {
+          "y": "10",
+          "shiftY" : "1.1",
+          "fontSize": "12",
+          "colour": "Black",
+          "fontStyle": "Bold",
+          "images": [
+            {
+              "name": "eika.png",
+              "x": "3",
+              "width": "2",
+              "height": "1"
+            }
+          ],
+          "fields": [
+            {
+              "name": "Vare",
+              "x": "6",
+              "y": ".2",
+              "testValue": "Stikkelsbær"
+            },
+            {
+              "name": "Pris",
+              "alignment": "Right",
+              "x": "14",
+              "y": ".2",
+              "width": "3",
+              "testValue": "150,-"
             }
           ]
         }

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using FormEngine.CsvValues;
 
 namespace RunFormEngine
 {
@@ -114,12 +115,13 @@ namespace RunFormEngine
         {
             try
             {
-                IFiles Files = new Folder(".");
+                IFiles files = new Folder(".");
+                IEnumerable<IValues> values = new CsvFile(files, "values.csv").GetValues();
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {
-                    Document builder = new Document(OutStream, Files);
-                    MakeForm form = new MakeForm(Files);
+                    Document builder = new Document(OutStream, files);
+                    MakeForm form = new MakeForm(files, values);
                     ok = form.Execute(formName, builder);
                     OutStream.Close();
                 }

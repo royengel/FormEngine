@@ -20,13 +20,15 @@ namespace FormEngine.CsvValues
 
         public string Get(string valueName, string format = null)
         {
-            if (file.GetHeaderRow() == null || row == null)
+            string[] header = file.GetHeaderRow();
+
+            if (header == null || row == null)
                 return "";
 
-            for(int i = 0; i <= row.GetUpperBound(0) && i <= file.GetHeaderRow().GetUpperBound(0); i++)
+            for(int i = 0; i <= row.GetUpperBound(0) && i <= header.GetUpperBound(0); i++)
             {
-                if (file.GetHeaderRow()[i].ToLower().Trim() == valueName)
-                    return row[i];
+                if (header[i] == valueName.ToLower().Trim())
+                    return row[i].Trim();
             }
 
             return "";

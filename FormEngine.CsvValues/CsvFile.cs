@@ -11,7 +11,8 @@ namespace FormEngine.CsvValues
     {
         private IFiles files;
         private string fileName;
-        private string[] headerRow;
+        private string[] headerRow = null;
+        private List<Values> values;
 
         public CsvFile(IFiles files, string fileName)
         {
@@ -21,25 +22,36 @@ namespace FormEngine.CsvValues
 
         public IEnumerable<IValues> GetValues()
         {
-            headerRow = null;
-            string fileContent = files.GetText(fileName).Replace(Environment.NewLine, "\n");
-            string[] rows = fileContent.Split('\n');
-            List<Values> values = new List<Values>();
-            foreach(string row in rows)
-            {
-                if (string.IsNullOrWhiteSpace(row))
-                    continue;
-
-                if (headerRow == null)
-                    headerRow = row.Split(';');
-                else
-                    values.Add(new Values(this, row.Split(';')));
-            }
+            InitValues();
             return values;
+        }
+
+        private void InitValues()
+        {
+            if (headerRow == null)
+            {
+                string fileContent = files.GetText(fileName).Replace(Environment.NewLine, "\n");
+                string[] rows = fileContent.Split('\n');
+                values = new List<Values>();
+                foreach (string row in rows)
+                {
+                    if (string.IsNullOrWhiteSpace(row))
+                        continue;
+
+                    if (headerRow == null)
+                        headerRow = row.ToLower().Split(';');
+                    else
+                        values.Add(new Values(this, row.Split(';')));
+                }
+
+                for (int i = 0; i <= headerRow.GetUpperBound(0); i++)
+                    headerRow[i] = headerRow[i].Trim();
+            }
         }
 
         internal string[] GetHeaderRow()
         {
+            InitValues();
             return headerRow;
         }
     }

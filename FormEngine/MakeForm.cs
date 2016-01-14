@@ -127,7 +127,7 @@ namespace FormEngine
             {
                 if (section.images != null)
                     foreach (Image image in section.images)
-                        if (!ExecuteIamge(formSpec, page, section, image, v))
+                        if (!ExecuteImage(formSpec, page, section, image, v))
                             return false;
 
                 if (section.fields != null)
@@ -138,11 +138,13 @@ namespace FormEngine
             return true;
         }
 
-        private bool ExecuteIamge(Form formSpec, Page page, Section section, Image image, IValues v)
+        private bool ExecuteImage(Form formSpec, Page page, Section section, Image image, IValues v)
         {
             try
             {
-                currentPage.AddImage(files, image.name, image.x, image.y, image.width, image.height);
+                decimal x = CalculateCoordinate(formSpec.x, page.x, section.x, interationOnCurrentPage, section.shiftX, image.x);
+                decimal y = CalculateCoordinate(formSpec.y, page.y, section.y, interationOnCurrentPage, section.shiftY, image.y);
+                currentPage.AddImage(files, image.name, x, y, image.width, image.height);
             }
             catch (Exception ex)
             {

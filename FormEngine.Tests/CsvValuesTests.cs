@@ -14,11 +14,10 @@ namespace FormEngine.Tests
         [TestMethod]
         public void CsvValues_Basics()
         {
-            CsvFile csvFile = MakeCsvFile(@"V1;v2
+            IEnumerable<IValues> values = MakeCsvFile(@"V1;v2
 a;b
 c;d
 ");
-            IEnumerable<IValues> values = csvFile.GetValues();
             IEnumerator<IValues> iterator = values.GetEnumerator();
             Assert.IsTrue(iterator.MoveNext());
             Assert.AreEqual("a", iterator.Current.Get("v1"));
@@ -29,11 +28,12 @@ c;d
             Assert.IsFalse(iterator.MoveNext());
         }
 
-        private static CsvFile MakeCsvFile(string content)
+        private static IEnumerable<IValues> MakeCsvFile(string content)
         {
             IFiles files = new FakeFiles();
             files = new FakeFiles() { textFiles = { { "values.csv", content } } };
-            return new CsvFile(files, "values.csv");
+
+            return new CsvFile().GetValues(files, "values.csv");
         }
     }
 }

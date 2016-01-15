@@ -7,20 +7,26 @@ using System.Threading.Tasks;
 
 namespace FormEngine.CsvValues
 {
-    public class CsvFile
+    public class CsvFile : IValuesProvider
     {
         private IFiles files;
         private string fileName;
         private string[] headerRow = null;
         private List<Values> values;
 
-        public CsvFile(IFiles files, string fileName)
+        //public CsvFile(IFiles files, string fileName)
+        //{
+        //    this.files = files;
+        //    this.fileName = fileName;
+        //}
+        public IEnumerable<IValues> GetValues(IFiles files, string valueKey)
         {
             this.files = files;
-            this.fileName = fileName;
+            this.fileName = valueKey;
+            return GetValues();
         }
 
-        public IEnumerable<IValues> GetValues()
+        private IEnumerable<IValues> GetValues()
         {
             InitValues();
             return values;

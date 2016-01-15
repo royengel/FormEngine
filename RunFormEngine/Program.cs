@@ -58,7 +58,10 @@ namespace RunFormEngine
                     Console.WriteLine("Error: Invalid parameter!");
 
                 Console.WriteLine("Usage:");
-                Console.WriteLine("RunFormEngine [-i] [-d] FormName=<form name> [OutputFile=<output file name>]");
+                Console.WriteLine(@"RunFormEngine [-i] [-d] FormName=<form name> [ValueKey=<data key>] [OutputFile=<output file name>]
+    IValuesProvider=<dll navn>
+    IFiles=<dll navn>
+    IFormBuilder=<dll navn>");
 
                 return;
             }
@@ -116,7 +119,7 @@ namespace RunFormEngine
             try
             {
                 IFiles files = new Folder(".");
-                IEnumerable<IValues> values = new CsvFile(files, "values.csv").GetValues();
+                IEnumerable<IValues> values = new CsvFile().GetValues(files, "values.csv");
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {

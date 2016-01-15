@@ -50,6 +50,7 @@
     <Compile Include="IFormPage.cs" />
     <Compile Include="Image.cs" />
     <Compile Include="IValues.cs" />
+    <Compile Include="IValuesProvider.cs" />
     <Compile Include="Page.cs" />
     <Compile Include="PageSize.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

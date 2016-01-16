@@ -11,11 +11,28 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using FormEngine.CsvValues;
+using NDesk.Options;
 
 namespace RunFormEngine
 {
     class Program
     {
+        static void ShowHelp(OptionSet p)
+        {
+            Console.WriteLine("Usage: RunFormEngine [OPTIONS]");
+            Console.WriteLine("Produce a pdf by combining plugins for data, layout and resources.");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            p.WriteOptionDescriptions(Console.Out);
+
+            Console.WriteLine();
+            Console.WriteLine(@"RunFormEngine [-i] [-d] FormName=<form name> [ValueKey=<data key>] [OutputFile=<output file name>]
+    IValuesProvider=<dll navn>
+    IFiles=<dll navn>
+    IFormBuilder=<dll navn>");
+
+        }
+
         static void Main(string[] args)
         {
             string formName = "";
@@ -25,44 +42,37 @@ namespace RunFormEngine
             bool runAsDeamon = false;
 
             bool ShowParamDescr = false;
-            bool ParamError = false;
+
+            var p = new OptionSet() {
+                { "d|deamon",  "keep on producing output whenever a file is touched in the resources.",
+                  v => invokePdf = v != null },
+                { "i|invoke",  "invoke the output file when finished.",
+                  v => invokePdf = v != null },
+                { "f|formName=", "the {FormName} of the layout description.",
+                  v => formName = v },
+                { "o|outputFile=",
+                    "the output {FileName} for the produced .\n" +
+                        "this must be an integer.",
+                  v => outputFile = v },
+                { "h|help",  "show this message and exit.",
+                  v => ShowParamDescr = v != null }
+            };
+
             try
             {
-                for (int i = 0; i <= args.GetUpperBound(0); i++)
-                {
-                    if (args[i].Length > 9 && args[i].Substring(0, 9).ToLower() == "formname=")
-                        formName = args[i].Substring(9);
-                    else if (args[i].Length > 11 && args[i].Substring(0, 11).ToLower() == "outputfile=")
-                        outputFile = args[i].Substring(11);
-                    else if (args[i].Length == 2 && args[i].Substring(0, 2).ToLower() == "-d")
-                        runAsDeamon = true;
-                    else if (args[i].Length == 2 && args[i].Substring(0, 2).ToLower() == "-i")
-                        invokePdf = true;
-                    else if (args[i].ToLower() == "-h")
-                        ShowParamDescr = true;
-                    else
-                        ParamError = true;
-                }
+                p.Parse(args);
             }
-            catch (Exception)
+            catch (OptionException e)
             {
-                ParamError = true;
+                Console.Write("RunFormEngine: ");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `RunFormEngine --help' for more information.");
+                return;
             }
 
-            if (string.IsNullOrEmpty(formName))
-                ParamError = true;
-
-            if (ShowParamDescr || ParamError)
+            if (ShowParamDescr)
             {
-                if (ParamError)
-                    Console.WriteLine("Error: Invalid parameter!");
-
-                Console.WriteLine("Usage:");
-                Console.WriteLine(@"RunFormEngine [-i] [-d] FormName=<form name> [ValueKey=<data key>] [OutputFile=<output file name>]
-    IValuesProvider=<dll navn>
-    IFiles=<dll navn>
-    IFormBuilder=<dll navn>");
-
+                ShowHelp(p);
                 return;
             }
 

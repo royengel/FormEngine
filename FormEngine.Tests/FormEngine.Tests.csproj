@@ -74,6 +74,10 @@
       <Project>{c335e0c5-36aa-4ab0-bbe3-02b470087f18}</Project>
       <Name>FormEngine</Name>
     </ProjectReference>
+    <ProjectReference Include="..\InterfaceImplementationsForTest\InterfaceImplementationsForTest.csproj">
+      <Project>{39a89993-456a-4d77-9884-a8117fd8765f}</Project>
+      <Name>InterfaceImplementationsForTest</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="FormEngine\" />

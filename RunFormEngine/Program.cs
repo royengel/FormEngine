@@ -32,6 +32,7 @@ namespace RunFormEngine
             string outputFile = "";
             string valueKey = "";
             string valuesProviderDll = "";
+            string valuesProviderClass = "";
             //IFiles=<dll navn>
             //IFormBuilder=<dll navn>
 
@@ -42,15 +43,17 @@ namespace RunFormEngine
 
             var p = new OptionSet() {
                 { "d|deamon",  "keep on producing output whenever a file is touched in the resources.",
-                  v => invokePdf = v != null },
+                  v => runAsDeamon = v != null },
                 { "i|invoke",  "invoke the output file when finished.",
                   v => invokePdf = v != null },
                 { "f|form=", "the {<form name>} of the layout description.",
                   v => formName = v },
-                { "vp|valuesProvider=", "a {<dll name>} name of a binary with at least one implementation of IValuesProvider.",
+                { "b|valuesDll=", "{<dll name>} of a binary with at least one implementation of IValuesProvider.",
                   v => valuesProviderDll = v },
+                { "c|valuesClass=", "the {<class name>} of a class implementing IValuesProvider.",
+                  v => valuesProviderClass = v },
                 { "k|valueKey=", "the {<key value>} for the IValuesProvider to determine what data to produce.",
-                  v => formName = v },
+                  v => valueKey = v },
                 { "o|output=",
                     "the output {<file name>} for the output form.\n" +
                         "this must be an integer.",
@@ -85,14 +88,14 @@ namespace RunFormEngine
 
             Deamon deamon;
 
-            MakePdf(formName, outFileName);
+            MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
 
             if (invokePdf)
                 Process.Start(outFileName);
 
             if (runAsDeamon)
             {
-                deamon = new Deamon(formName, outFileName);
+                deamon = new Deamon(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
             }
 
             if(runAsDeamon)
@@ -103,12 +106,18 @@ namespace RunFormEngine
         {
             private string formName;
             private string outFileName;
+            private string valueKey;
+            private string valuesProviderClass;
+            private string valuesProviderDll;
             private FileSystemWatcher watcher = new FileSystemWatcher();
 
-            public Deamon(string formName, string outFileName)
+            public Deamon(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass)
             {
                 this.formName = formName;
                 this.outFileName = outFileName;
+                this.valueKey = valueKey;
+                this.valuesProviderDll = valuesProviderDll;
+                this.valuesProviderClass = valuesProviderClass;
                 watcher.Path = ".";
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Filter = "*.*";
@@ -120,17 +129,18 @@ namespace RunFormEngine
             {
                 watcher.EnableRaisingEvents = false;
                 Thread.Sleep(300);
-                Program.MakePdf(formName, outFileName);
+                Program.MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
                 watcher.EnableRaisingEvents = true;
             }
         }
 
-        private static void MakePdf(string formName, string outFileName)
+        private static void MakePdf(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass)
         {
             try
             {
                 IFiles files = new Folder(".");
-                IEnumerable<IValues> values = new CsvFile().GetValues(files, "values.csv");
+                IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
+                IEnumerable<IValues> values = provider.GetValues(files, valueKey);
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {

@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlAdaptor", "MySqlAdapto
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.CsvValues", "FormEngine.CsvValues\FormEngine.CsvValues.csproj", "{94361C61-2A82-4C7A-8ACB-231910BEA26D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceImplementationsForTest", "InterfaceImplementationsForTest\InterfaceImplementationsForTest.csproj", "{39A89993-456A-4D77-9884-A8117FD8765F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39A89993-456A-4D77-9884-A8117FD8765F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39A89993-456A-4D77-9884-A8117FD8765F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39A89993-456A-4D77-9884-A8117FD8765F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39A89993-456A-4D77-9884-A8117FD8765F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -24,19 +24,16 @@ namespace RunFormEngine
             Console.WriteLine();
             Console.WriteLine("Options:");
             p.WriteOptionDescriptions(Console.Out);
-
-            Console.WriteLine();
-            Console.WriteLine(@"RunFormEngine [-i] [-d] FormName=<form name> [ValueKey=<data key>] [OutputFile=<output file name>]
-    IValuesProvider=<dll navn>
-    IFiles=<dll navn>
-    IFormBuilder=<dll navn>");
-
         }
 
         static void Main(string[] args)
         {
             string formName = "";
             string outputFile = "";
+            string valueKey = "";
+            string valuesProviderDll = "";
+            //IFiles=<dll navn>
+            //IFormBuilder=<dll navn>
 
             bool invokePdf = false;
             bool runAsDeamon = false;
@@ -48,10 +45,14 @@ namespace RunFormEngine
                   v => invokePdf = v != null },
                 { "i|invoke",  "invoke the output file when finished.",
                   v => invokePdf = v != null },
-                { "f|formName=", "the {FormName} of the layout description.",
+                { "f|form=", "the {<form name>} of the layout description.",
                   v => formName = v },
-                { "o|outputFile=",
-                    "the output {FileName} for the produced .\n" +
+                { "vp|valuesProvider=", "a {<dll name>} name of a binary with at least one implementation of IValuesProvider.",
+                  v => valuesProviderDll = v },
+                { "k|valueKey=", "the {<key value>} for the IValuesProvider to determine what data to produce.",
+                  v => formName = v },
+                { "o|output=",
+                    "the output {<file name>} for the output form.\n" +
                         "this must be an integer.",
                   v => outputFile = v },
                 { "h|help",  "show this message and exit.",

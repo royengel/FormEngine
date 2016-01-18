@@ -53,6 +53,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="BreakCheckerTests.cs" />
+    <Compile Include="ClassFactoryTests.cs" />
     <Compile Include="CsvValuesTests.cs" />
     <Compile Include="Helpers\FakeFiles.cs" />
     <Compile Include="Helpers\FakeFormBuilder.cs" />

@@ -2,7 +2,7 @@
 
 namespace FormEngine.Interfaces
 {
-    public interface IFiles
+    public interface IResources
     {
         byte[] Get(string name);
         string GetText(string name);

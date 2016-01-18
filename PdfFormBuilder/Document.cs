@@ -16,10 +16,10 @@ namespace FormEngine.PdfFormBuilder
     {
         private Stream outStream;
         private PdfDocument document;
-        private IFiles files;
+        private IResources files;
         private Dictionary<string, XImage> xImages = new Dictionary<string, XImage>();
 
-        public Document(Stream stream, IFiles files)
+        public Document(Stream stream, IResources files)
         {
             this.files = files;
             outStream = stream;
@@ -31,7 +31,7 @@ namespace FormEngine.PdfFormBuilder
             return new Page(this, document, pageSize);
         }
 
-        private XImage MakeXImage(IFiles files, string fileName)
+        private XImage MakeXImage(IResources files, string fileName)
         {
             XImage xImg;
             if (!xImages.TryGetValue(fileName, out xImg))

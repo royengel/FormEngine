@@ -9,7 +9,7 @@ namespace FormEngine.CsvValues
 {
     public class CsvFile : IValuesProvider
     {
-        private IFiles files;
+        private IResources files;
         private string fileName;
         private string[] headerRow = null;
         private List<Values> values;
@@ -19,7 +19,7 @@ namespace FormEngine.CsvValues
         //    this.files = files;
         //    this.fileName = fileName;
         //}
-        public IEnumerable<IValues> GetValues(IFiles files, string valueKey)
+        public IEnumerable<IValues> GetValues(IResources files, string valueKey)
         {
             this.files = files;
             this.fileName = valueKey;

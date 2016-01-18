@@ -11,21 +11,21 @@ namespace FormEngine
 {
     public class MakeForm
     {
-        private IFiles files;
+        private IResources files;
         private IEnumerable<IValues> values;
 
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
         private BreakChecker breakChecker = new BreakChecker();
 
-        public MakeForm(IFiles files)
+        public MakeForm(IResources files)
         {
             this.files = files;
             this.values = null;
         }
 
 
-        public MakeForm(IFiles files, IEnumerable<IValues> values)
+        public MakeForm(IResources files, IEnumerable<IValues> values)
         {
             this.files = files;
             this.values = values;

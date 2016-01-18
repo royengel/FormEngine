@@ -30,11 +30,12 @@ namespace RunFormEngine
         {
             string formName = "";
             string outputFile = "";
-            string valueKey = "";
             string valuesProviderDll = "";
             string valuesProviderClass = "";
-            //IFiles=<dll navn>
-            //IFormBuilder=<dll navn>
+            string valueKey = "";
+            string formBuilderDll = "PdfFormBuilder";
+            string resourcesDll = "FileSystem";
+            string resourcesArgument = ".";
 
             bool invokePdf = false;
             bool runAsDeamon = false;
@@ -42,22 +43,26 @@ namespace RunFormEngine
             bool ShowParamDescr = false;
 
             var p = new OptionSet() {
-                { "d|deamon",  "keep on producing output whenever a file is touched in the resources.",
-                  v => runAsDeamon = v != null },
-                { "i|invoke",  "invoke the output file when finished.",
-                  v => invokePdf = v != null },
-                { "f|form=", "the {<form name>} of the layout description.",
+                { "f|form=", "The form {<name>} of the layout description.",
                   v => formName = v },
-                { "b|valuesDll=", "{<dll name>} of a binary with at least one implementation of IValuesProvider.",
+                { "d|valuesDll=", "Dll {<name>} of a binary with at least one implementation of IValuesProvider. If no value provider is given, the form will be generated with test data from the form definition.",
                   v => valuesProviderDll = v },
-                { "c|valuesClass=", "the {<class name>} of a class implementing IValuesProvider.",
+                { "c|valuesClass=", "The {<name>} of a class implementing IValuesProvider.",
                   v => valuesProviderClass = v },
-                { "k|valueKey=", "the {<key value>} for the IValuesProvider to determine what data to produce.",
+                { "k|valueKey=", "The {<key>} value for the IValuesProvider to determine what data to provide.",
                   v => valueKey = v },
-                { "o|output=",
-                    "the output {<file name>} for the output form.\n" +
-                        "this must be an integer.",
+                { "r|resources=", "The {<name>} of a binary with an implementation of IResources. Default \"" + resourcesDll + "\".",
+                  v => resourcesDll = v },
+                { "a|resourcesArgument=", "An {<argument>} for the IResources implementation. Default \"" + resourcesArgument + "\".",
+                  v => resourcesArgument = v },
+                { "b|builder=", "Form builder dll {<name>}. Implementation of IFormBuilder. Default \"" + formBuilderDll + "\".",
+                  v => formBuilderDll = v },
+                { "o|output=", "the output file {<name>} for the output form. Default is form name.",
                   v => outputFile = v },
+                { "i|invoke",  "Invoke the output file when finished.",
+                  v => invokePdf = v != null },
+                { "D|deamon",  "Keep on producing output whenever a file is touched in the current directory.",
+                  v => runAsDeamon = v != null },
                 { "h|help",  "show this message and exit.",
                   v => ShowParamDescr = v != null }
             };
@@ -88,14 +93,14 @@ namespace RunFormEngine
 
             Deamon deamon;
 
-            MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
+            MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass, formBuilderDll, resourcesDll, resourcesArgument);
 
             if (invokePdf)
                 Process.Start(outFileName);
 
             if (runAsDeamon)
             {
-                deamon = new Deamon(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
+                deamon = new Deamon(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass, formBuilderDll, resourcesDll, resourcesArgument);
             }
 
             if(runAsDeamon)
@@ -104,20 +109,27 @@ namespace RunFormEngine
 
         private class Deamon
         {
+            private string formBuilderDll;
             private string formName;
             private string outFileName;
+            private string resourcesArgument;
+            private string resourcesDll;
             private string valueKey;
             private string valuesProviderClass;
             private string valuesProviderDll;
             private FileSystemWatcher watcher = new FileSystemWatcher();
 
-            public Deamon(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass)
+            public Deamon(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass, string formBuilderDll, string resourcesDll, string resourcesArgument)
             {
                 this.formName = formName;
                 this.outFileName = outFileName;
                 this.valueKey = valueKey;
                 this.valuesProviderDll = valuesProviderDll;
                 this.valuesProviderClass = valuesProviderClass;
+                this.formBuilderDll = formBuilderDll;
+                this.resourcesDll = resourcesDll;
+                this.resourcesArgument = resourcesArgument;
+
                 watcher.Path = ".";
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Filter = "*.*";
@@ -129,18 +141,25 @@ namespace RunFormEngine
             {
                 watcher.EnableRaisingEvents = false;
                 Thread.Sleep(300);
-                Program.MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass);
+                Program.MakePdf(formName, outFileName, valueKey, valuesProviderDll, valuesProviderClass, formBuilderDll, resourcesDll, resourcesArgument);
                 watcher.EnableRaisingEvents = true;
             }
         }
 
-        private static void MakePdf(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass)
+        private static void MakePdf(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass, string formBuilderDll, string resourcesDll, string resourcesArgument)
         {
             try
             {
-                IFiles files = new Folder(".");
+                IResources files = ClassFactory<IResources>.Instanciate(resourcesDll, "", resourcesArgument);
+                Console.WriteLine("Resources: {0} ({1})", files.GetType().ToString(), resourcesArgument);
+
                 IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
-                IEnumerable<IValues> values = provider.GetValues(files, valueKey);
+                IEnumerable<IValues> values = null;
+                if (provider != null)
+                {
+                    Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
+                    values = provider.GetValues(files, valueKey);
+                }
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {
@@ -153,7 +172,7 @@ namespace RunFormEngine
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception: " + ex.Message);
+                Console.WriteLine("Exception: " + ex.ToString());
             }
         }
     }

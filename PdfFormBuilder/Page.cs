@@ -23,7 +23,7 @@ namespace FormEngine.PdfFormBuilder
             xGraphics = XGraphics.FromPdfPage(page);
         }
 
-        public void AddImage(IFiles files, string file, decimal x, decimal y, decimal width, decimal height)
+        public void AddImage(IResources files, string file, decimal x, decimal y, decimal width, decimal height)
         {
             XImage xImg = MakeXImage(files, file);
             XRect rectangle = new XRect() { X = XUnit.FromCentimeter((double)x), Y = XUnit.FromCentimeter((double)y), Width = XUnit.FromCentimeter((double)width), Height = XUnit.FromCentimeter((double)height) };
@@ -31,7 +31,7 @@ namespace FormEngine.PdfFormBuilder
         }
 
         private static Dictionary<string, XImage> imageCache = new Dictionary<string, XImage>();
-        private static XImage MakeXImage(IFiles files, string file)
+        private static XImage MakeXImage(IResources files, string file)
         {
             XImage xImg;
             if (!imageCache.TryGetValue(file, out xImg))

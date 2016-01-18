@@ -6,7 +6,7 @@ namespace InterfaceImplementationsForTest
 {
     public class TestValuesProvider : IValuesProvider
     {
-        public IEnumerable<IValues> GetValues(IFiles files, string valueKey)
+        public IEnumerable<IValues> GetValues(IResources files, string valueKey)
         {
             return new List<IValues>() { new Values(new Dictionary<string, object>
                     {

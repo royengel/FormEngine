@@ -9,10 +9,13 @@ using System.Threading.Tasks;
 
 namespace FormEngine
 {
-    public static class ClassFactory<T>
+    public static class ClassFactory<T> where T : class
     {
-        public static T Instanciate(string dllName = "", string className = "")
+        public static T Instanciate(string dllName = "", string className = "", params object[] constructorArgument)
         {
+            if (string.IsNullOrWhiteSpace(dllName) && string.IsNullOrWhiteSpace(className))
+                return null;
+
             List<Assembly> allAssemblies = new List<Assembly>();
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string searchPattern = string.IsNullOrEmpty(dllName) ? "*.dll" : string.Format("*{0}*.dll", dllName.Trim());
@@ -25,13 +28,14 @@ namespace FormEngine
                 .Where(a => a.GetName().Name.ToLower().Contains(dllName.ToLower())
                     && a.GetTypes().FirstOrDefault(c => interfaceType.IsAssignableFrom(c)) != null).ToList();
 
-            
-
             Type implementationType = assemblies
                 .SelectMany(s => s.GetTypes())
                 .FirstOrDefault(c => interfaceType.IsAssignableFrom(c) && c != interfaceType && c.Name.ToLower().Contains(className.ToLower()));
 
-            return (T)Activator.CreateInstance(implementationType);
+            if (implementationType == null)
+                return null;
+
+            return (T)Activator.CreateInstance(implementationType, constructorArgument);
         }
     }
 }

@@ -8,7 +8,7 @@ using FormEngine.Interfaces;
 
 namespace FormEngine.FileSystem
 {
-    public class Folder : IFiles
+    public class Folder : IResources
     {
         string _path;
 

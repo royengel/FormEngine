@@ -66,7 +66,7 @@ namespace FormEngine.Tests.Helpers
             this.pageSize = pageSize;
         }
 
-        public void AddImage(IFiles files, string file, decimal x, decimal y, decimal width, decimal height)
+        public void AddImage(IResources files, string file, decimal x, decimal y, decimal width, decimal height)
         {
             images.Add(new FormImage(file, x, y, width, height));
         }

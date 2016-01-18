@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FormEngine.Tests.Helpers
 {
-    public class FakeFiles : IFiles
+    public class FakeFiles : IResources
     {
         public readonly Dictionary<string, byte[]> files = new Dictionary<string, byte[]>();
         public readonly Dictionary<string, string> textFiles = new Dictionary<string, string>();

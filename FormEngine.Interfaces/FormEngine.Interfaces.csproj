@@ -45,7 +45,7 @@
     <Compile Include="FieldProperties.cs" />
     <Compile Include="FontStyle.cs" />
     <Compile Include="Form.cs" />
-    <Compile Include="IFiles.cs" />
+    <Compile Include="IResources.cs" />
     <Compile Include="IFormBuilder.cs" />
     <Compile Include="IFormPage.cs" />
     <Compile Include="Image.cs" />

@@ -8,6 +8,6 @@ namespace FormEngine.Interfaces
 {
     public interface IValuesProvider
     {
-        IEnumerable<IValues> GetValues(IFiles files, string valueKey);
+        IEnumerable<IValues> GetValues(IResources files, string valueKey);
     }
 }

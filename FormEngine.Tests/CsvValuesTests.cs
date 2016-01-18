@@ -30,7 +30,7 @@ c;d
 
         private static IEnumerable<IValues> MakeCsvFile(string content)
         {
-            IFiles files = new FakeFiles();
+            IResources files = new FakeFiles();
             files = new FakeFiles() { textFiles = { { "values.csv", content } } };
 
             return new CsvFile().GetValues(files, "values.csv");

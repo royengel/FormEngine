@@ -1,6 +1,7 @@
 ﻿using FormEngine.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -12,8 +13,15 @@ namespace FormEngine
     {
         public static T Instanciate(string dllName = "", string className = "")
         {
+            List<Assembly> allAssemblies = new List<Assembly>();
+            string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string searchPattern = string.IsNullOrEmpty(dllName) ? "*.dll" : string.Format("*{0}*.dll", dllName.Trim());
+
+            foreach (string dll in Directory.GetFiles(path, searchPattern))
+                allAssemblies.Add(Assembly.LoadFile(dll));
+
             Type interfaceType = typeof(T);
-            List<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies()
+            List<Assembly> assemblies = allAssemblies
                 .Where(a => a.GetName().Name.ToLower().Contains(dllName.ToLower())
                     && a.GetTypes().FirstOrDefault(c => interfaceType.IsAssignableFrom(c)) != null).ToList();
 
@@ -21,7 +29,7 @@ namespace FormEngine
 
             Type implementationType = assemblies
                 .SelectMany(s => s.GetTypes())
-                .FirstOrDefault(c => interfaceType.IsAssignableFrom(c) && c.Name.ToLower().Contains(className.ToLower()));
+                .FirstOrDefault(c => interfaceType.IsAssignableFrom(c) && c != interfaceType && c.Name.ToLower().Contains(className.ToLower()));
 
             return (T)Activator.CreateInstance(implementationType);
         }

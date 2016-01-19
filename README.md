@@ -1,6 +1,8 @@
 # FormEngine
 
-A light weight and highly configurable pdf generation tool.
+A light weight and highly customizable form generation tool. The FormEngine combines data from
+an IEnumerable collection of implementations of IValues, with a form layout definition as a structured Form object.
+The Form object can be provided programatically or as a json file.
 
 ## Create a pull request to contribute your changes back into master
 Pull requests are the way to move changes from a topic branch back into the master branch.

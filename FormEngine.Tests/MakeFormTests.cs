@@ -44,10 +44,10 @@ namespace FormEngine.Tests
                             ]
                           }" } } };
             List<IValues> values = new List<IValues> { new Values(new Dictionary<string, object> { { "v1", "1" } }) };
-            MakeForm maker = new MakeForm(files, values);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute("form1", builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, "form1", builder), "MakeForm.Execute failed!");
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(1, builder.pages[0].texts.Count, "Wrong number of fields");
             Assert.AreEqual("A4", builder.pages[0].pageSize);
@@ -78,10 +78,10 @@ namespace FormEngine.Tests
                     }
             };
             List<IValues> values = new List<IValues> { new Values( new Dictionary<string, object> { { "v1", "1" }, { "v2", "2" } }) };
-            MakeForm maker = new MakeForm(files, values);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(2, builder.pages[0].texts.Count, "Wrong number of fields");
 
@@ -117,10 +117,10 @@ namespace FormEngine.Tests
                         }
                     }
             };
-            MakeForm maker = new MakeForm(files);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, null, form, builder), "MakeForm.Execute failed!");
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(1, builder.pages[0].texts.Count, "Wrong number of fields");
 
@@ -154,10 +154,10 @@ namespace FormEngine.Tests
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }),
                     new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "z" } }) };
-            MakeForm maker = new MakeForm(files, values);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
             Assert.AreEqual(2, builder.pages.Count);
 
             FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v1");
@@ -210,10 +210,10 @@ namespace FormEngine.Tests
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "b" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "c" } }),
                     new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "y" }, { "v3", "d" } }) };
-            MakeForm maker = new MakeForm(files, values);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
             Assert.AreEqual(2, builder.pages.Count);
 
             FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v3");
@@ -264,10 +264,10 @@ namespace FormEngine.Tests
             List<IValues> values = new List<IValues> {
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }) };
-            MakeForm maker = new MakeForm(files, values);
+            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
 
-            Assert.IsTrue(maker.Execute(form, builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
             Assert.AreEqual(1, builder.pages.Count);
 
             Assert.AreEqual(1, builder.pages[0].texts.Where(t => t.fieldName == "v1").Count());

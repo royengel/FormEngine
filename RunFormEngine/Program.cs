@@ -85,6 +85,15 @@ namespace RunFormEngine
                 return;
             }
 
+            if (string.IsNullOrEmpty(formName))
+            {
+                Console.Write("RunFormEngine: ");
+                Console.WriteLine("parameter --form is mandatory!");
+                Console.WriteLine();
+                ShowHelp(p);
+                return;
+            }
+
             string outFileName;
             if (string.IsNullOrEmpty(outputFile))
                 outFileName = Path.ChangeExtension(formName, "pdf");
@@ -151,7 +160,7 @@ namespace RunFormEngine
             try
             {
                 IResources files = ClassFactory<IResources>.Instanciate(resourcesDll, "", resourcesArgument);
-                Console.WriteLine("Resources: {0} ({1})", files.GetType().ToString(), resourcesArgument);
+                Console.WriteLine("IResources: {0} ({1})", files.GetType().ToString(), resourcesArgument);
 
                 IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
                 IEnumerable<IValues> values = null;
@@ -160,12 +169,20 @@ namespace RunFormEngine
                     Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
                     values = provider.GetValues(files, valueKey);
                 }
+                else
+                {
+                    Console.WriteLine("Error: values dll: \"{0}\" / values class: \"{1}\" could not be found!", valuesProviderDll, valuesProviderClass);
+                    return;
+                }
+
+                MakeForm form = new MakeForm();
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {
-                    Document builder = new Document(OutStream, files);
-                    MakeForm form = new MakeForm(files, values);
-                    ok = form.Execute(formName, builder);
+                    IFormBuilder builder = ClassFactory<IFormBuilder>.Instanciate(formBuilderDll, "", OutStream, files);
+                    Console.WriteLine("IFormBuilder: {0}", builder.GetType().ToString());
+                    //Document builder = new Document(OutStream, files);
+                    ok = form.Execute(files, values, formName, builder);
                     OutStream.Close();
                 }
                 Console.WriteLine("Produced " + outFileName + (ok ? " successfully!" : " with errors!"));

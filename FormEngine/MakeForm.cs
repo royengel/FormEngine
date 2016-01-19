@@ -18,22 +18,24 @@ namespace FormEngine
         private IFormPage currentPage = null;
         private BreakChecker breakChecker = new BreakChecker();
 
-        public MakeForm(IResources files)
-        {
-            this.files = files;
-            this.values = null;
-        }
+        //public MakeForm(IResources files)
+        //{
+        //    this.files = files;
+        //    this.values = null;
+        //}
 
 
-        public MakeForm(IResources files, IEnumerable<IValues> values)
-        {
-            this.files = files;
-            this.values = values;
-        }
+        //public MakeForm(IResources files, IEnumerable<IValues> values)
+        //{
+        //    this.files = files;
+        //    this.values = values;
+        //}
 
-        public bool Execute(string form, IFormBuilder builder)
+        public bool Execute(IResources files, IEnumerable<IValues> values, string form, IFormBuilder builder)
         {
             this.builder = builder;
+            this.files = files;
+            this.values = values;
             currentPage = null;
             Form formSpec = null;
             bool ok = true;
@@ -65,13 +67,16 @@ namespace FormEngine
                 ok = false;
             }
 
-            return Execute(formSpec, builder) && ok;
+            return Execute(files, values, formSpec, builder) && ok;
         }
 
-        public bool Execute(Form formSpec, IFormBuilder builder)
+        public bool Execute(IResources files, IEnumerable<IValues> values, Form formSpec, IFormBuilder builder)
         {
             bool ok = true;
             this.builder = builder;
+            this.files = files;
+            this.values = values;
+
             currentPage = null;
             if (values == null)
                 values = new List<IValues> () { new TestValues(formSpec)};

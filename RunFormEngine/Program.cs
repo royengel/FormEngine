@@ -162,17 +162,20 @@ namespace RunFormEngine
                 IResources files = ClassFactory<IResources>.Instanciate(resourcesDll, "", resourcesArgument);
                 Console.WriteLine("IResources: {0} ({1})", files.GetType().ToString(), resourcesArgument);
 
-                IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
                 IEnumerable<IValues> values = null;
-                if (provider != null)
+                if (!string.IsNullOrWhiteSpace(valuesProviderDll) || !string.IsNullOrWhiteSpace(valuesProviderClass))
                 {
-                    Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
-                    values = provider.GetValues(files, valueKey);
-                }
-                else
-                {
-                    Console.WriteLine("Error: values dll: \"{0}\" / values class: \"{1}\" could not be found!", valuesProviderDll, valuesProviderClass);
-                    return;
+                    IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
+                    if (provider != null)
+                    {
+                        Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
+                        values = provider.GetValues(files, valueKey);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: values dll: \"{0}\" / values class: \"{1}\" could not be found!", valuesProviderDll, valuesProviderClass);
+                        return;
+                    }
                 }
 
                 MakeForm form = new MakeForm();
@@ -181,7 +184,6 @@ namespace RunFormEngine
                 {
                     IFormBuilder builder = ClassFactory<IFormBuilder>.Instanciate(formBuilderDll, "", OutStream, files);
                     Console.WriteLine("IFormBuilder: {0}", builder.GetType().ToString());
-                    //Document builder = new Document(OutStream, files);
                     ok = form.Execute(files, values, formName, builder);
                     OutStream.Close();
                 }

@@ -16,29 +16,17 @@ namespace FormEngine
 
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
-        private BreakChecker breakChecker = new BreakChecker();
+        private decimal currentVerticalPosition = 0;
+        private ValueIterator valueIterator = null;
 
-        //public MakeForm(IResources files)
-        //{
-        //    this.files = files;
-        //    this.values = null;
-        //}
-
-
-        //public MakeForm(IResources files, IEnumerable<IValues> values)
-        //{
-        //    this.files = files;
-        //    this.values = values;
-        //}
-
-        public bool Execute(IResources files, IEnumerable<IValues> values, string form, IFormBuilder builder)
+        public MakeForm(IFormBuilder builder)
         {
             this.builder = builder;
-            this.files = files;
-            this.values = values;
-            currentPage = null;
-            Form formSpec = null;
-            bool ok = true;
+        }
+
+        public bool Execute(IResources files, IEnumerable<IValues> values, string form)
+        {
+            Form formSpec;
             try
             {
                 string json = files.GetText(form + ".json");
@@ -46,11 +34,48 @@ namespace FormEngine
             }
             catch(Exception ex)
             {
-                formSpec = new Form()
-                {
-                    formTitle = "Internal error",
-                    pages = new List<Page>() {
-                        new Page() { pageSize = PageSize.A4,
+                ExceptionPdf(ex);
+
+                return false;
+            }
+
+            try
+            {
+                Execute(files, values, formSpec);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ExceptionPdf(ex);
+
+                return false;
+            }
+        }
+
+        public void Execute(IResources files, IEnumerable<IValues> values, Form formSpec, bool finalize = true)
+        {
+            this.files = files;
+            this.values = values;
+            //string test = JsonConvert.SerializeObject(formSpec);
+            if (this.values == null)
+                this.values = new List<IValues>() { new TestValues(formSpec) };
+
+            foreach (Report r in formSpec.reports)
+            {
+                ExecuteReport(formSpec, r);
+            }
+            if(finalize)
+                builder.Finalize();
+        }
+
+        private void ExceptionPdf(Exception ex)
+        {
+            Form formSpec = new Form()
+            {
+                formTitle = "Internal error",
+                pageSize = PageSize.A4,
+                reports = new List<Report>() {
+                        new Report() { 
                             sections = new List<Section>() {
                                 new Section() {
                                     fields = new List<Field>()
@@ -61,160 +86,235 @@ namespace FormEngine
                             }
                         }
                     }
-                };
-                values = new List<IValues> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
-
-                ok = false;
-            }
-
-            return Execute(files, values, formSpec, builder) && ok;
+            };
+            IEnumerable<IValues> values = new List<IValues> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
+            Execute(files, values, formSpec);
         }
 
-        public bool Execute(IResources files, IEnumerable<IValues> values, Form formSpec, IFormBuilder builder)
+        private void ExecuteReport(Form formSpec, Report report)
         {
-            bool ok = true;
-            this.builder = builder;
-            this.files = files;
-            this.values = values;
-
-            currentPage = null;
-            if (values == null)
-                values = new List<IValues> () { new TestValues(formSpec)};
-
+            valueIterator = new ValueIterator();
             foreach (IValues v in values)
             {
-                breakChecker.IterateTo(v);
+                valueIterator.IterateTo(v);
 
-                if (!ExecuteForm(formSpec, v))
-                {
-                    ok = false;
-                    break;
-                }
+                ExecuteReport(formSpec, report, v);
             }
-            return builder.Finalize() && ok;
         }
 
-        private bool ExecuteForm(Form formSpec, IValues v)
+        private SectionType lastExecutedSectionType = SectionType.FormHeader;
+        private IFormPage lastPageWithDetailHeader = null;
+        private void ExecuteReport(Form formSpec, Report report, IValues v)
         {
-            foreach(Page page in formSpec.pages)
-                if (!ExecutePage(formSpec, page, v))
-                    return false;
+            if (valueIterator.IsFirst())
+                foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.FormHeader))
+                    HandleSection(formSpec, report, s, v);
 
-            return true;
+            foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.GroupHeader))
+                HandleGroupHeaderSection(formSpec, report, s, v);
+
+            foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.Detail))
+                HandleSection(formSpec, report, s, v);
+
+            foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.GroupFooter))
+                HandleGroupFooterSection(formSpec, report, s, v);
+
+            if (valueIterator.IsLast())
+                foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.FormFooter))
+                    HandleSection(formSpec, report, s, valueIterator.PreviousValues());
         }
-        long interationOnCurrentPage = 0;
-        private bool ExecutePage(Form formSpec, Page page, IValues v)
+
+        private void HandleGroupHeaderSection(Form formSpec, Report report, Section section, IValues v)
         {
-            if (breakChecker.IsBreak(page.breakColumns))
+            if (valueIterator.IsBreak(section.breakColumns, true))
             {
-                currentPage = builder.AddPage(page.pageSize);
-
-                if (!string.IsNullOrEmpty(page.backgroundImage))
-                    currentPage.AddImage(files, page.backgroundImage, 0, 0, currentPage.GetWidth(), currentPage.GetHeight());
-
-                interationOnCurrentPage = 0;
+                HandlePageBreaks(formSpec, report, section, v);
+                ExecuteSection(formSpec, report, section, v);
             }
-            else
-            {
-                interationOnCurrentPage++;
-            }
-            if (page.sections != null)
-                foreach (Section section in page.sections)
-                    if (!ExecuteSection(formSpec, page, section, v))
-                        return false;
-
-            return true;
         }
 
-        private bool ExecuteSection(Form formSpec, Page page, Section section, IValues v)
+        private void HandleSection(Form formSpec, Report report, Section section, IValues v)
         {
-            if (interationOnCurrentPage == 0 || breakChecker.IsBreak(section.breakColumns))
-            {
-                if (section.images != null)
-                    foreach (Image image in section.images)
-                        if (!ExecuteImage(formSpec, page, section, image, v))
-                            return false;
+            HandlePageBreaks(formSpec, report, section, v);
 
-                if (section.fields != null)
-                    foreach (Field field in section.fields)
-                        if (!ExecuteField(formSpec, page, section, field, v))
-                            return false;
+            if (lastPageWithDetailHeader != currentPage || lastExecutedSectionType != SectionType.Detail)
+            {
+                foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.DetailHeader))
+                    ExecuteSection(formSpec, report, s, v);
+                lastPageWithDetailHeader = currentPage;
             }
-            return true;
+
+            ExecuteSection(formSpec, report, section, v);
         }
 
-        private bool ExecuteImage(Form formSpec, Page page, Section section, Image image, IValues v)
+        private void HandleGroupFooterSection(Form formSpec, Report report, Section section, IValues v)
+        {
+            if (valueIterator.IsBreak(section.breakColumns, false))
+            {
+                HandlePageBreaks(formSpec, report, section, v);
+                ExecuteSection(formSpec, report, section, v);
+            }
+        }
+
+        private void HandlePageBreaks(Form formSpec, Report report, Section section, IValues values)
+        {
+            if (currentPage == null 
+                || section.pageBreak
+                || currentVerticalPosition + CalculateSectionHeight(formSpec, report, section, values) > currentPage.GetHeight())
+            {
+                if(currentPage != null)
+                    foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.PageFooter))
+                        ExecuteSection(formSpec, report, s, valueIterator.PreviousValues());
+
+                currentPage = builder.AddPage(formSpec.pageSize);
+                currentVerticalPosition = formSpec.y + report.y;
+
+                foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.PageHeader))
+                    ExecuteSection(formSpec, report, s, values);
+            }
+        }
+
+        private void ExecuteSection(Form formSpec, Report report, Section section, IValues values)
+        {
+            if (section.images != null)
+                foreach (Image image in section.images)
+                    ExecuteImage(formSpec, report, section, image, values);
+
+            if (section.fields != null)
+                foreach (Field field in section.fields)
+                    ExecuteField(formSpec, report, section, field, values);
+
+            lastExecutedSectionType = section.sectionType;
+            currentVerticalPosition += CalculateSectionHeight(formSpec, report, section, values);
+        }
+
+        private decimal CalculateSectionHeight(Form formSpec, Report report, Section section, IValues values)
+        {
+            if (section.height != null)
+                return section.height ?? 0;
+
+            decimal maxHeight = 0;
+            if (section.images != null)
+                foreach (Image image in section.images)
+                    maxHeight = Max(maxHeight, image.y + image.height);
+            if (section.fields != null)
+                foreach (Field field in section.fields)
+                    maxHeight = Max(maxHeight, field.y + MeasureFieldTextHeight(formSpec, report, section, field, values));
+
+            return maxHeight;
+        }
+
+        private T Max<T>(T v1, T v2) where T : IComparable
+        {
+            if (v1.CompareTo(v2) >= 0)
+                return v1;
+            return v2;
+        }
+
+        private T Min<T>(T v1, T v2) where T : IComparable
+        {
+            if (v1.CompareTo(v2) <= 0)
+                return v1;
+            return v2;
+        }
+
+        private void ExecuteImage(Form formSpec, Report report, Section section, Image image, IValues v)
         {
             try
             {
-                decimal x = CalculateCoordinate(formSpec.x, page.x, section.x, interationOnCurrentPage, section.shiftX, image.x);
-                decimal y = CalculateCoordinate(formSpec.y, page.y, section.y, interationOnCurrentPage, section.shiftY, image.y);
-                currentPage.AddImage(files, image.name, x, y, image.width, image.height);
+                decimal x = CalculateXCoordinate(formSpec.x, report.x, section.x, image.x);
+                decimal y = CalculateYCoordinate(formSpec.y, report.y, section.y, image.y, currentVerticalPosition);
+                decimal width = Min(image.width, currentPage.GetWidth() - x);
+                decimal height = Min(image.height, currentPage.GetHeight() - y);
+                currentPage.AddImage(files, image.name, x, y, width, height);
             }
             catch (Exception ex)
             {
-                WriteException(ex, "Error when processing image: " + image.name);
-                return false;
+                throw new Exception("Error when processing image: " + image.name, ex);
             }
-            return true;
         }
 
-        private bool ExecuteField(Form formSpec, Page page, Section section, Field field, IValues v)
+        private decimal MeasureFieldTextHeight(Form formSpec, Report page, Section section, Field field, IValues v)
         {
             try
             {
-                string text = v.Get(field.name, field.format);
+                string text = FieldText(field, v);
+                FieldProperties p = GetFieldDefaults(formSpec, page, section, field);
+                return currentPage.MeasureTextHeight(text, p.font, p.fontSize, p.fontStyle, field.width, field.height);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error when processing field: " + field.name, ex);
+            }
+        }
+
+        private void ExecuteField(Form formSpec, Report page, Section section, Field field, IValues v)
+        {
+            try
+            {
+                string text = FieldText(field, v);
                 FieldProperties p = GetFieldDefaults(formSpec, page, section, field);
                 currentPage.AddText(field.name, text, p.alignment, p.font, p.fontSize, p.fontStyle, p.colour, p.x, p.y, field.width, field.height);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                WriteException(ex, "Error when processing field: " + field.name);
-                return false;
+                throw new Exception("Error when processing field: " + field.name, ex);
             }
-            return true;
         }
 
-        private FieldProperties GetFieldDefaults(Form formSpec, Page page, Section section, Field field)
+        private static string FieldText(Field field, IValues v)
+        {
+            string text = field.value;
+            if (string.IsNullOrEmpty(text))
+                text = v.Get(field.name, field.format);
+            return text;
+        }
+
+        private FieldProperties GetFieldDefaults(Form formSpec, Report report, Section section, Field field)
         {
             FieldProperties p = new FieldProperties();
-            p.alignment = field.alignment ?? section.alignment ?? page.alignment ?? formSpec.alignment ?? "Left";
+            p.alignment = field.alignment ?? section.alignment ?? report.alignment ?? formSpec.alignment ?? "Left";
 
             p.colour = field.colour != ColourName.Undefined ? field.colour
                     : (section.colour != ColourName.Undefined ? section.colour
-                    : (page.colour != ColourName.Undefined ? page.colour
+                    : (report.colour != ColourName.Undefined ? report.colour
                     : (formSpec.colour != ColourName.Undefined ? formSpec.colour
                     : ColourName.Black)));
 
-            p.font = field.font ?? section.font ?? page.font ?? formSpec.font ?? "Arial";
+            p.font = field.font ?? section.font ?? report.font ?? formSpec.font ?? "Arial";
             p.fontSize = field.fontSize != 0 ? field.fontSize 
                     : (section.fontSize != 0 ? section.fontSize 
-                    : (page.fontSize != 0 ? page.fontSize
+                    : (report.fontSize != 0 ? report.fontSize
                     : (formSpec.fontSize != 0 ? formSpec.fontSize
                     : 12)));
             p.fontStyle = field.fontStyle != FontStyle.Undefined ? field.fontStyle 
                     : (section.fontStyle != FontStyle.Undefined ? section.fontStyle 
-                    : (page.fontStyle != FontStyle.Undefined ? page.fontStyle 
+                    : (report.fontStyle != FontStyle.Undefined ? report.fontStyle 
                     : (formSpec.fontStyle != FontStyle.Undefined ? formSpec.fontStyle
                     : FontStyle.Regular)));
 
-            p.x = CalculateCoordinate(formSpec.x, page.x, section.x, interationOnCurrentPage, section.shiftX, field.x);
-            p.y = CalculateCoordinate(formSpec.y, page.y, section.y, interationOnCurrentPage, section.shiftY, field.y);
+            p.x = CalculateXCoordinate(formSpec.x, report.x, section.x, field.x);
+            p.y = CalculateYCoordinate(formSpec.y, report.y, section.y, field.y, currentVerticalPosition);
 
             return p;
         }
 
-        private decimal CalculateCoordinate(decimal formOffset, decimal pageOffset, decimal sectionOffset, long iteration, decimal shiftValue, decimal itemCoordinate)
+        private decimal CalculateXCoordinate(decimal formOffset, decimal reportOffset, decimal sectionOffset, decimal itemCoordinate)
         {
-            return formOffset + pageOffset + sectionOffset + (iteration * shiftValue) + itemCoordinate;
+            return formOffset + reportOffset + sectionOffset + itemCoordinate;
         }
 
-        private void WriteException(Exception ex, string message)
+        private decimal CalculateYCoordinate(decimal formOffset, decimal reportOffset, decimal sectionOffset, decimal itemCoordinate, decimal currentPosition)
         {
-            if(currentPage == null)
-                currentPage = builder.AddPage(PageSize.A4);
-
-            currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 12, FontStyle.Bold, ColourName.Black, 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
+            return sectionOffset + itemCoordinate + currentPosition;
         }
+
+        //private void WriteException(Exception ex, string message)
+        //{
+        //    if(currentPage == null)
+        //        currentPage = builder.AddPage(PageSize.A4);
+
+        //    currentPage.AddText("Exception", message + Environment.NewLine + ex.ToString(), "Left", "Impact", 12, FontStyle.Bold, ColourName.Black, 2, 2, currentPage.GetWidth() - 4, currentPage.GetHeight() - 4);
+        //}
     }
 }

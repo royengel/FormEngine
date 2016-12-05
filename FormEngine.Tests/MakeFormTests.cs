@@ -15,12 +15,12 @@ namespace FormEngine.Tests
         public void MakeForm_Basics()
         {
             FakeFiles files = new FakeFiles() { textFiles = {
-                    { "form1.json", 
+                    { "form1.json",
                         @"{
-                            'pages':
+                            'pageSize':'A4', 
+                            'reports':
                             [
                                 { 
-                                    'pageSize':'A4', 
                                     'x':'0.5', 
                                     'y':'0.5', 
                                     'fontStyle':'Bold',
@@ -44,10 +44,10 @@ namespace FormEngine.Tests
                             ]
                           }" } } };
             List<IValues> values = new List<IValues> { new Values(new Dictionary<string, object> { { "v1", "1" } }) };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, values, "form1", builder), "MakeForm.Execute failed!");
+            Assert.IsTrue(maker.Execute(files, values, "form1"), "MakeForm.Execute failed!");
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(1, builder.pages[0].texts.Count, "Wrong number of fields");
             Assert.AreEqual("A4", builder.pages[0].pageSize);
@@ -62,11 +62,19 @@ namespace FormEngine.Tests
             FakeFiles files = new FakeFiles();
             Form form = new Form()
             {
-                formTitle = "title1", x = .2M, y = .4M,
-                pages = new List<Page>() {
-                        new Page() { pageSize = PageSize.A4, x = -.1M, y = -.2M, colour = ColourName.Red, 
+                formTitle = "title1",
+                x = .2M,
+                y = .4M,
+                pageSize = PageSize.A4,
+                reports = new List<Report>() {
+                        new Report() {
+                            x = -.1M,
+                            y = -.2M,
+                            colour = ColourName.Red, 
                             sections = new List<Section>() {
-                                new Section() { x = 1, y = 2,
+                                new Section() {
+                                    x = 1,
+                                    y = 2,
                                     fields = new List<Field>()
                                     {
                                         new Field() { x = 4, y = 8, colour = ColourName.Blue, name="v1" },
@@ -78,10 +86,11 @@ namespace FormEngine.Tests
                     }
             };
             List<IValues> values = new List<IValues> { new Values( new Dictionary<string, object> { { "v1", "1" }, { "v2", "2" } }) };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
+            maker.Execute(files, values, form);
+
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(2, builder.pages[0].texts.Count, "Wrong number of fields");
 
@@ -104,8 +113,8 @@ namespace FormEngine.Tests
             FakeFiles files = new FakeFiles();
             Form form = new Form()
             {
-                pages = new List<Page>() {
-                        new Page() {
+                reports = new List<Report>() {
+                        new Report() {
                             sections = new List<Section>() {
                                 new Section() { 
                                     fields = new List<Field>()
@@ -117,10 +126,10 @@ namespace FormEngine.Tests
                         }
                     }
             };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, null, form, builder), "MakeForm.Execute failed!");
+            maker.Execute(files, null, form);
             Assert.AreEqual(1, builder.pages.Count);
             Assert.AreEqual(1, builder.pages[0].texts.Count, "Wrong number of fields");
 
@@ -135,11 +144,16 @@ namespace FormEngine.Tests
             Form form = new Form()
             {
                 formTitle = "title1",
-                pages = new List<Page>() {
-                        new Page() {
-                            breakColumns = new List<string>() { "v1" },
+                reports = new List<Report>() {
+                        new Report() {
                             sections = new List<Section>() {
                                 new Section() {
+                                    pageBreak = true,
+                                    sectionType = SectionType.GroupHeader,
+                                    breakColumns = new List<string>() { "v1" }
+                                },
+                                new Section() {
+                                    sectionType = SectionType.Detail,
                                     fields = new List<Field>()
                                     {
                                         new Field() { name = "v1" },
@@ -154,10 +168,10 @@ namespace FormEngine.Tests
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }),
                     new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "z" } }) };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
+            maker.Execute(files, values, form);
             Assert.AreEqual(2, builder.pages.Count);
 
             FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v1");
@@ -183,22 +197,28 @@ namespace FormEngine.Tests
             Form form = new Form()
             {
                 formTitle = "title1",
-                pages = new List<Page>() {
-                        new Page() {
-                            breakColumns = new List<string>() { "v1" },
+                reports = new List<Report>() {
+                        new Report() {
                             sections = new List<Section>() {
                                 new Section() {
+                                    sectionType = SectionType.GroupHeader,
+                                    pageBreak = true,
+                                    height = 0m,
+                                    breakColumns = new List<string>() { "v1" }
+                                },
+                                new Section() {
+                                    sectionType = SectionType.GroupHeader,
                                     breakColumns = new List<string>() { "v1", "v2" },
-                                    shiftX = 1M,
+                                    height = 1M,
                                     images = new List<Image>()
                                     {
-                                        new Image() { x = 3M, name = "i1" }
+                                        new Image() { y = 3M, name = "i1" }
                                     },
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 1M, name = "v1" },
-                                        new Field() { x = 1M, name = "v2" },
-                                        new Field() { x = 1M, name = "v3" }
+                                        new Field() { y = 1M, name = "v1" },
+                                        new Field() { y = 1M, name = "v2" },
+                                        new Field() { y = 1M, name = "v3" }
                                     }
                                 }
                             }
@@ -210,26 +230,26 @@ namespace FormEngine.Tests
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "b" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" }, { "v3", "c" } }),
                     new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "y" }, { "v3", "d" } }) };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
+            maker.Execute(files, values, form);
             Assert.AreEqual(2, builder.pages.Count);
 
             FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v3");
             Assert.AreEqual("a", t1.text);
-            Assert.AreEqual(1M, t1.x);
+            Assert.AreEqual(1M, t1.y);
 
             t1 = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v3");
             Assert.AreEqual("b", t1.text);
-            Assert.AreEqual(2M, t1.x);
+            Assert.AreEqual(2M, t1.y);
 
             Assert.IsFalse(builder.pages[0].texts.Any(t => t.fieldName == "v3" && t.text == "c"));
 
             FormImage i1 = builder.pages[0].images.FirstOrDefault(t => t.file == "i1");
-            Assert.AreEqual(3M, i1.x);
+            Assert.AreEqual(3M, i1.y);
             i1 = builder.pages[0].images.LastOrDefault(t => t.file == "i1");
-            Assert.AreEqual(4M, i1.x);
+            Assert.AreEqual(4M, i1.y);
         }
 
         [TestMethod]
@@ -239,22 +259,24 @@ namespace FormEngine.Tests
             Form form = new Form()
             {
                 formTitle = "title1",
-                pages = new List<Page>() {
-                        new Page() {
-                            breakColumns = new List<string>() { "v1" },
+                reports = new List<Report>() {
+                        new Report() {
                             sections = new List<Section>() {
                                 new Section() {
+                                    sectionType = SectionType.GroupHeader,
                                     breakColumns = new List<string>() { "v1" },
+                                    height = 0,
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 1M, name = "v1" }
+                                        new Field() { y = 1M, name = "v1" }
                                     }
                                 },
                                 new Section() {
-                                    shiftX = 1M,
+                                    sectionType = SectionType.Detail,
+                                    height = 1M,
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 1M, name = "v2" }
+                                        new Field() { y = 1M, name = "v2" }
                                     }
                                 }
                             }
@@ -264,10 +286,10 @@ namespace FormEngine.Tests
             List<IValues> values = new List<IValues> {
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
                     new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }) };
-            MakeForm maker = new MakeForm();
             FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
-            Assert.IsTrue(maker.Execute(files, values, form, builder), "MakeForm.Execute failed!");
+            maker.Execute(files, values, form);
             Assert.AreEqual(1, builder.pages.Count);
 
             Assert.AreEqual(1, builder.pages[0].texts.Where(t => t.fieldName == "v1").Count());
@@ -275,13 +297,225 @@ namespace FormEngine.Tests
 
             FormText ft = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v2");
             Assert.AreEqual("x", ft.text);
-            Assert.AreEqual(1M, ft.x);
+            Assert.AreEqual(1M, ft.y);
             ft = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v2");
             Assert.AreEqual("y", ft.text);
-            Assert.AreEqual(2M, ft.x);
+            Assert.AreEqual(2M, ft.y);
+        }
 
-            Assert.IsFalse(builder.pages[0].texts.Any(t => t.fieldName == "v3" && t.text == "c"));
+        [TestMethod]
+        public void MakeForm_PageHeader()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                formTitle = "title1",
+                reports = new List<Report>() {
+                        new Report() {
+                            sections = new List<Section>() {
+                                new Section() {
+                                    sectionType = SectionType.PageHeader,
+                                    height = 1M,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { y = 1M, name = "v1" }
+                                    }
+                                },
+                                new Section() {
+                                    sectionType = SectionType.Detail,
+                                    height = 8M,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { y = 1M, name = "v2" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "a" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "b" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "c" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "d" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "e" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "f" } }) };
+            FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
 
+            maker.Execute(files, values, form);
+            Assert.AreEqual(2, builder.pages.Count);
+
+            Assert.AreEqual(1, builder.pages[0].texts.Where(t => t.fieldName == "v1").Count());
+            Assert.AreEqual(1, builder.pages[1].texts.Where(t => t.fieldName == "v1").Count());
+
+            FormText[] ft = builder.pages[0].texts.Where(t => t.fieldName == "v2").ToArray();
+            Assert.AreEqual("a", ft[0].text);
+            Assert.AreEqual(2M, ft[0].y);
+            Assert.AreEqual("b", ft[1].text);
+            Assert.AreEqual(10M, ft[1].y);
+            Assert.AreEqual("c", ft[2].text);
+            Assert.AreEqual(18M, ft[2].y);
+            ft = builder.pages[1].texts.Where(t => t.fieldName == "v2").ToArray();
+            Assert.AreEqual("d", ft[0].text);
+            Assert.AreEqual(2M, ft[0].y);
+            Assert.AreEqual("e", ft[1].text);
+            Assert.AreEqual(10M, ft[1].y);
+            Assert.AreEqual("f", ft[2].text);
+            Assert.AreEqual(18M, ft[2].y);
+        }
+
+        [TestMethod]
+        public void MakeForm_VariableHeightSections()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                reports = new List<Report>() {
+                        new Report() {
+                            sections = new List<Section>() {
+                                new Section() {
+                                    sectionType = SectionType.Detail,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { y = 1M, name = "v1" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "2" + Environment.NewLine + "2" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "3" } }) };
+            FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
+
+            maker.Execute(files, values, form);
+            Assert.AreEqual(1, builder.pages.Count);
+
+            List<FormText> texts = builder.pages[0].texts;
+            Assert.AreEqual(3, texts.Where(t => t.fieldName == "v1").Count());
+
+            Assert.AreEqual("1", texts[0].text);
+            Assert.AreEqual(1M, texts[0].y);
+            Assert.AreEqual("2" + Environment.NewLine + "2", texts[1].text);
+            Assert.AreEqual(3M, texts[1].y);
+            Assert.AreEqual("3", texts[2].text);
+            Assert.AreEqual(6M, texts[2].y);
+        }
+
+        [TestMethod]
+        public void MakeForm_TwoReports()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                reports = new List<Report>() {
+                        new Report() {
+                            sections = new List<Section>() {
+                                new Section() {
+                                    sectionType = SectionType.Detail,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { y = 1M, name = "v1" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" } }) };
+            FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
+
+            maker.Execute(files, values, form, false);
+            maker.Execute(files, values, form);
+            Assert.AreEqual(1, builder.pages.Count);
+
+            List<FormText> texts = builder.pages[0].texts;
+            Assert.AreEqual(2, texts.Where(t => t.fieldName == "v1").Count());
+
+            Assert.AreEqual("1", texts[0].text);
+            Assert.AreEqual(1M, texts[0].y);
+            Assert.AreEqual("1", texts[1].text);
+            Assert.AreEqual(3M, texts[1].y);
+        }
+
+        [TestMethod]
+        public void MakeForm_DetailHeader()
+        {
+            FakeFiles files = new FakeFiles();
+            Form form = new Form()
+            {
+                formTitle = "title1",
+                reports = new List<Report>() {
+                        new Report() {
+                            sections = new List<Section>() {
+                                new Section() {
+                                    pageBreak = true,
+                                    sectionType = SectionType.GroupHeader,
+                                    breakColumns = new List<string>() { "v1" }
+                                },
+                                new Section() {
+                                    sectionType = SectionType.DetailHeader,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { name = "l1", value = "a" }
+                                    }
+                                },
+                                new Section() {
+                                    sectionType = SectionType.Detail,
+                                    fields = new List<Field>()
+                                    {
+                                        new Field() { name = "v1" },
+                                        new Field() { name = "v2" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            };
+            List<IValues> values = new List<IValues> {
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }),
+                    new Values(new Dictionary<string, object> { { "v1", "2" }, { "v2", "z" } }) };
+            FakeFormBuilder builder = new FakeFormBuilder();
+            MakeForm maker = new MakeForm(builder);
+
+            maker.Execute(files, values, form);
+            Assert.AreEqual(2, builder.pages.Count);
+
+            FormText t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v1");
+            Assert.AreEqual("1", t1.text);
+            Assert.AreEqual(1, t1.y);
+
+            t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "l1");
+            Assert.AreEqual("a", t1.text);
+            Assert.AreEqual(0, t1.y);
+
+            t1 = builder.pages[0].texts.FirstOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("x", t1.text);
+            Assert.AreEqual(1, t1.y);
+
+            t1 = builder.pages[0].texts.LastOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("y", t1.text);
+            Assert.AreEqual(2, t1.y);
+
+            t1 = builder.pages[1].texts.FirstOrDefault(t => t.fieldName == "l1");
+            Assert.AreEqual("a", t1.text);
+            Assert.AreEqual(0, t1.y);
+
+            t1 = builder.pages[1].texts.FirstOrDefault(t => t.fieldName == "v1");
+            Assert.AreEqual("2", t1.text);
+            Assert.AreEqual(1, t1.y);
+
+            t1 = builder.pages[1].texts.FirstOrDefault(t => t.fieldName == "v2");
+            Assert.AreEqual("z", t1.text);
+            Assert.AreEqual(1, t1.y);
         }
 
 

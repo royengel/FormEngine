@@ -19,12 +19,26 @@ namespace FormEngine.FileSystem
 
         public byte[] Get(string name)
         {
-            return File.ReadAllBytes(Path.Combine(_path, name));
+            try
+            {
+                return File.ReadAllBytes(Path.Combine(_path, name));
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(string.Format("Error reading file '{0}'", name), ex);
+            }
         }
 
         public string GetText(string name)
         {
-            return File.ReadAllText(Path.Combine(_path, name));
+            try
+            {
+                return File.ReadAllText(Path.Combine(_path, name));
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(string.Format("Error reading text file '{0}'", name), ex);
+            }
         }
     }
 }

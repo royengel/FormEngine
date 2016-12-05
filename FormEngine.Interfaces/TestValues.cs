@@ -14,7 +14,7 @@ namespace FormEngine.Interfaces
 
         public string Get(string valueName, string format = null)
         {
-            foreach(Page p in form.pages)
+            foreach(Report p in form.reports)
             {
                 foreach(Section s in p.sections)
                 {

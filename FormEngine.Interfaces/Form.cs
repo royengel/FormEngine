@@ -9,7 +9,8 @@ namespace FormEngine.Interfaces
     public class Form : FieldProperties
     {
         public string formTitle;
-        public List<Page> pages;
+        public PageSize pageSize;
+        public List<Report> reports;
 
         public IEnumerable<IValues> TestValues()
         {

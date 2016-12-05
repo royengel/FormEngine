@@ -85,5 +85,10 @@ namespace FormEngine.Tests.Helpers
         {
             return 27;
         }
+
+        public decimal MeasureTextHeight(string text, string font, decimal fontSize, FontStyle fontStyle, decimal width, decimal height)
+        {
+            return text.Split('\n').Count();
+        }
     }
 }

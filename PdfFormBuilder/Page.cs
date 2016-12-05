@@ -74,6 +74,31 @@ namespace FormEngine.PdfFormBuilder
             }
         }
 
+        private const double wastedSpaceFactor = 20; // Higher number gives higher factor
+        public decimal MeasureTextHeight(string text, string font, decimal fontSize, Interfaces.FontStyle fontStyle, decimal width, decimal height)
+        {
+            XFontStyle style = ConvertFontStyle(fontStyle);
+            XFont xFont = new XFont(font, (double)fontSize, style);
+
+            var lines = text.Split('\n');
+
+            double totalHeight = 0;
+            if (width == 0M)
+                width = 9999;
+
+            foreach (string line in lines)
+            {
+                XSize size = xGraphics.MeasureString(line, xFont);
+                double charactersPrLine = line.Length / (size.Width / XUnit.FromCentimeter((double)width));
+                double factor = wastedSpaceFactor / charactersPrLine;
+                double numberOfLines = Math.Ceiling(size.Width * (1 + factor) / XUnit.FromCentimeter((double)width));
+                double h = size.Height * numberOfLines;
+                totalHeight += h;
+            }
+            XUnit xHeight = XUnit.FromPresentation(totalHeight);
+            return (decimal)xHeight.Centimeter;
+        }
+
         private XBrush CreateXBrush(ColourName colour)
         {
             return new XSolidBrush(MapColourNameToXColor(colour));

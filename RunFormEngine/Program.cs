@@ -85,10 +85,13 @@ namespace RunFormEngine
                 return;
             }
 
-            if (string.IsNullOrEmpty(formName))
+            if (string.IsNullOrEmpty(formName) || string.IsNullOrEmpty(valueKey))
             {
                 Console.Write("RunFormEngine: ");
-                Console.WriteLine("parameter --form is mandatory!");
+                if (string.IsNullOrEmpty(formName))
+                    Console.WriteLine("parameter --form is mandatory!");
+                if (string.IsNullOrEmpty(valueKey))
+                    Console.WriteLine("parameter --valueKey is mandatory!");
                 Console.WriteLine();
                 ShowHelp(p);
                 return;
@@ -178,13 +181,13 @@ namespace RunFormEngine
                     }
                 }
 
-                MakeForm form = new MakeForm();
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
                 {
                     IFormBuilder builder = ClassFactory<IFormBuilder>.Instanciate(formBuilderDll, "", OutStream, files);
+                    MakeForm form = new MakeForm(builder);
                     Console.WriteLine("IFormBuilder: {0}", builder.GetType().ToString());
-                    ok = form.Execute(files, values, formName, builder);
+                    ok = form.Execute(files, values, formName);
                     OutStream.Close();
                 }
                 Console.WriteLine("Produced " + outFileName + (ok ? " successfully!" : " with errors!"));

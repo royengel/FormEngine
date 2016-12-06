@@ -18,7 +18,7 @@ namespace FormEngine.CsvValues
             this.row = row;
         }
 
-        public string Get(string valueName, string format = null)
+        public override string Get(string valueName)
         {
             string[] header = file.GetHeaderRow();
 

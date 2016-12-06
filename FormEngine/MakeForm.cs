@@ -12,7 +12,7 @@ namespace FormEngine
     public class MakeForm
     {
         private IResources files;
-        private IEnumerable<IValues> values;
+        private IEnumerable<dynamic> values;
 
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
@@ -24,7 +24,7 @@ namespace FormEngine
             this.builder = builder;
         }
 
-        public bool Execute(IResources files, IEnumerable<IValues> values, string form)
+        public bool Execute(IResources files, IEnumerable<dynamic> values, string form)
         {
             Form formSpec;
             try
@@ -39,9 +39,26 @@ namespace FormEngine
                 return false;
             }
 
+            return Execute(files, values, formSpec);
+        }
+
+        public bool Execute(IResources files, IEnumerable<dynamic> values, Form formSpec, bool finalize = true)
+        {
             try
             {
-                Execute(files, values, formSpec);
+                this.files = files;
+                this.values = values;
+                //string test = JsonConvert.SerializeObject(formSpec);
+                if (this.values == null)
+                    this.values = formSpec.TestValues();
+
+                foreach (Report r in formSpec.reports)
+                {
+                    ExecuteReport(formSpec, r);
+                }
+                if (finalize)
+                    builder.Finalize();
+
                 return true;
             }
             catch (Exception ex)
@@ -50,22 +67,6 @@ namespace FormEngine
 
                 return false;
             }
-        }
-
-        public void Execute(IResources files, IEnumerable<IValues> values, Form formSpec, bool finalize = true)
-        {
-            this.files = files;
-            this.values = values;
-            //string test = JsonConvert.SerializeObject(formSpec);
-            if (this.values == null)
-                this.values = new List<IValues>() { new TestValues(formSpec) };
-
-            foreach (Report r in formSpec.reports)
-            {
-                ExecuteReport(formSpec, r);
-            }
-            if(finalize)
-                builder.Finalize();
         }
 
         private void ExceptionPdf(Exception ex)
@@ -80,32 +81,36 @@ namespace FormEngine
                                 new Section() {
                                     fields = new List<Field>()
                                     {
-                                        new Field() { x = 2, y = 2, width=18, name = "exception", colour = ColourName.Red, font = "Arial", fontSize = 10 }
+                                        new Field() { x = 2, y = 2, width=18, value = v => v.exception, colour = ColourName.Red, font = "Arial", fontSize = 10 }
                                     }
                                 }
                             }
                         }
                     }
             };
-            IEnumerable<IValues> values = new List<IValues> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
+            IEnumerable<dynamic> values = new List<dynamic> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
             Execute(files, values, formSpec);
         }
 
         private void ExecuteReport(Form formSpec, Report report)
         {
             valueIterator = new ValueIterator();
-            foreach (IValues v in values)
+            foreach (dynamic v in values)
             {
                 valueIterator.IterateTo(v);
 
                 ExecuteReport(formSpec, report, v);
             }
+            valueIterator.IterateTo(null);
+            HandleFooters(formSpec, report);
         }
 
         private SectionType lastExecutedSectionType = SectionType.FormHeader;
         private IFormPage lastPageWithDetailHeader = null;
-        private void ExecuteReport(Form formSpec, Report report, IValues v)
+        private void ExecuteReport(Form formSpec, Report report, dynamic v)
         {
+            HandleFooters(formSpec, report);
+
             if (valueIterator.IsFirst())
                 foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.FormHeader))
                     HandleSection(formSpec, report, s, v);
@@ -115,16 +120,19 @@ namespace FormEngine
 
             foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.Detail))
                 HandleSection(formSpec, report, s, v);
+        }
 
+        private void HandleFooters(Form formSpec, Report report)
+        {
             foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.GroupFooter))
-                HandleGroupFooterSection(formSpec, report, s, v);
+                HandleGroupFooterSection(formSpec, report, s, valueIterator.PreviousValues());
 
             if (valueIterator.IsLast())
                 foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.FormFooter))
                     HandleSection(formSpec, report, s, valueIterator.PreviousValues());
         }
 
-        private void HandleGroupHeaderSection(Form formSpec, Report report, Section section, IValues v)
+        private void HandleGroupHeaderSection(Form formSpec, Report report, Section section, dynamic v)
         {
             if (valueIterator.IsBreak(section.breakColumns, true))
             {
@@ -133,11 +141,12 @@ namespace FormEngine
             }
         }
 
-        private void HandleSection(Form formSpec, Report report, Section section, IValues v)
+        private void HandleSection(Form formSpec, Report report, Section section, dynamic v)
         {
             HandlePageBreaks(formSpec, report, section, v);
 
-            if (lastPageWithDetailHeader != currentPage || lastExecutedSectionType != SectionType.Detail)
+            if (section.sectionType == SectionType.Detail 
+                && (lastPageWithDetailHeader != currentPage || lastExecutedSectionType != SectionType.Detail))
             {
                 foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.DetailHeader))
                     ExecuteSection(formSpec, report, s, v);
@@ -147,7 +156,7 @@ namespace FormEngine
             ExecuteSection(formSpec, report, section, v);
         }
 
-        private void HandleGroupFooterSection(Form formSpec, Report report, Section section, IValues v)
+        private void HandleGroupFooterSection(Form formSpec, Report report, Section section, dynamic v)
         {
             if (valueIterator.IsBreak(section.breakColumns, false))
             {
@@ -156,11 +165,16 @@ namespace FormEngine
             }
         }
 
-        private void HandlePageBreaks(Form formSpec, Report report, Section section, IValues values)
+        private void HandlePageBreaks(Form formSpec, Report report, Section section, dynamic values)
         {
+            decimal pageFooterHeight = 0;
+            if (currentPage != null && !valueIterator.IsFirst())
+                foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.PageFooter))
+                    pageFooterHeight += CalculateSectionHeight(formSpec, report, s, valueIterator.PreviousValues());
+
             if (currentPage == null 
                 || section.pageBreak
-                || currentVerticalPosition + CalculateSectionHeight(formSpec, report, section, values) > currentPage.GetHeight())
+                || currentVerticalPosition + pageFooterHeight + CalculateSectionHeight(formSpec, report, section, values) > currentPage.GetHeight())
             {
                 if(currentPage != null)
                     foreach (Section s in report.sections.Where(s => s.sectionType == SectionType.PageFooter))
@@ -174,7 +188,7 @@ namespace FormEngine
             }
         }
 
-        private void ExecuteSection(Form formSpec, Report report, Section section, IValues values)
+        private void ExecuteSection(Form formSpec, Report report, Section section, dynamic values)
         {
             if (section.images != null)
                 foreach (Image image in section.images)
@@ -188,7 +202,7 @@ namespace FormEngine
             currentVerticalPosition += CalculateSectionHeight(formSpec, report, section, values);
         }
 
-        private decimal CalculateSectionHeight(Form formSpec, Report report, Section section, IValues values)
+        private decimal CalculateSectionHeight(Form formSpec, Report report, Section section, dynamic values)
         {
             if (section.height != null)
                 return section.height ?? 0;
@@ -218,7 +232,7 @@ namespace FormEngine
             return v2;
         }
 
-        private void ExecuteImage(Form formSpec, Report report, Section section, Image image, IValues v)
+        private void ExecuteImage(Form formSpec, Report report, Section section, Image image, dynamic v)
         {
             try
             {
@@ -234,7 +248,7 @@ namespace FormEngine
             }
         }
 
-        private decimal MeasureFieldTextHeight(Form formSpec, Report page, Section section, Field field, IValues v)
+        private decimal MeasureFieldTextHeight(Form formSpec, Report page, Section section, Field field, dynamic v)
         {
             try
             {
@@ -244,11 +258,11 @@ namespace FormEngine
             }
             catch (Exception ex)
             {
-                throw new Exception("Error when processing field: " + field.name, ex);
+                throw new Exception("Error when processing field: " + field.value, ex);
             }
         }
 
-        private void ExecuteField(Form formSpec, Report page, Section section, Field field, IValues v)
+        private void ExecuteField(Form formSpec, Report page, Section section, Field field, dynamic v)
         {
             try
             {
@@ -258,16 +272,13 @@ namespace FormEngine
             }
             catch (Exception ex)
             {
-                throw new Exception("Error when processing field: " + field.name, ex);
+                throw new Exception("Error when processing field: " + field.value, ex);
             }
         }
 
-        private static string FieldText(Field field, IValues v)
+        private static string FieldText(Field field, dynamic v)
         {
-            string text = field.value;
-            if (string.IsNullOrEmpty(text))
-                text = v.Get(field.name, field.format);
-            return text;
+            return field.value(v);
         }
 
         private FieldProperties GetFieldDefaults(Form formSpec, Report report, Section section, Field field)

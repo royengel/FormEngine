@@ -6,8 +6,8 @@ namespace FormEngine
 {
     public class ValueIterator
     {
-        IValues previousValues = null;
-        IValues currentValues = null;
+        dynamic previousValues = null;
+        dynamic currentValues = null;
 
         public bool IsFirst()
         {
@@ -21,7 +21,7 @@ namespace FormEngine
                 return true;
             return false;
         }
-        public bool IsBreak(List<string> breakValueNames, bool headerBreak)
+        public bool IsBreak(List<Func<dynamic, object>> breakValues, bool headerBreak)
         {
             if (previousValues == null)
                 if (headerBreak)
@@ -35,23 +35,23 @@ namespace FormEngine
                 else
                     return true;
 
-            if (breakValueNames == null)
+            if (breakValues == null)
                 return false;
-            if (breakValueNames.Count == 0)
+            if (breakValues.Count == 0)
                 return false;
-            foreach (string valueName in breakValueNames)
-                if (previousValues.Get(valueName) != currentValues.Get(valueName))
+            foreach (Func<dynamic, object> value in breakValues)
+                if (value(previousValues) != value(currentValues))
                     return true;
             return false;
         }
 
-        public void IterateTo(IValues values)
+        public void IterateTo(dynamic values)
         {
             previousValues = currentValues;
             currentValues = values;
         }
 
-        public IValues PreviousValues()
+        public dynamic PreviousValues()
         {
             return previousValues;
         }

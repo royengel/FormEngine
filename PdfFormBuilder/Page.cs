@@ -74,7 +74,7 @@ namespace FormEngine.PdfFormBuilder
             }
         }
 
-        private const double wastedSpaceFactor = 20; // Higher number gives higher factor
+        private const double wastedSpaceFactor = 18; // Higher number gives higher factor
         public decimal MeasureTextHeight(string text, string font, decimal fontSize, Interfaces.FontStyle fontStyle, decimal width, decimal height)
         {
             XFontStyle style = ConvertFontStyle(fontStyle);
@@ -89,11 +89,21 @@ namespace FormEngine.PdfFormBuilder
             foreach (string line in lines)
             {
                 XSize size = xGraphics.MeasureString(line, xFont);
-                double charactersPrLine = line.Length / (size.Width / XUnit.FromCentimeter((double)width));
-                double factor = wastedSpaceFactor / charactersPrLine;
-                double numberOfLines = Math.Ceiling(size.Width * (1 + factor) / XUnit.FromCentimeter((double)width));
-                double h = size.Height * numberOfLines;
-                totalHeight += h;
+                if (size.Height > 0)
+                {
+                    if (size.Width > XUnit.FromCentimeter((double)width))
+                    {
+                        double charactersPrLine = line.Length / (size.Width / XUnit.FromCentimeter((double)width));
+                        double factor = wastedSpaceFactor / charactersPrLine;
+                        double numberOfLines = Math.Ceiling(size.Width * (1 + factor) / XUnit.FromCentimeter((double)width));
+                        double h = size.Height * numberOfLines;
+                        totalHeight += h;
+                    }
+                    else
+                    {
+                        totalHeight += size.Height;
+                    }
+                }
             }
             XUnit xHeight = XUnit.FromPresentation(totalHeight);
             return (decimal)xHeight.Centimeter;
@@ -397,15 +407,15 @@ namespace FormEngine.PdfFormBuilder
 
         private XParagraphAlignment GetXParagraphAlignment(string alignment)
         {
-            switch (alignment)
+            switch (alignment.ToLower())
             {
-                case "Center":
+                case "center":
                     return XParagraphAlignment.Center;
-                case "Right":
+                case "right":
                     return XParagraphAlignment.Right;
-                case "Default":
+                case "default":
                     return XParagraphAlignment.Default;
-                case "Justify":
+                case "justify":
                     return XParagraphAlignment.Justify;
                 default:
                     return XParagraphAlignment.Left;

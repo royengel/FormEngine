@@ -12,9 +12,9 @@ namespace FormEngine.Interfaces
         public PageSize pageSize;
         public List<Report> reports;
 
-        public IEnumerable<IValues> TestValues()
+        public IEnumerable<dynamic> TestValues()
         {
-            return new List<IValues>() { new TestValues(this) };
+            return new List<dynamic>() { new TestValues(this) };
         }
     }
 }

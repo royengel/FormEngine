@@ -17,14 +17,14 @@ namespace FormEngine.Tests
         {
             ValueIterator checker = new ValueIterator();
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" } }));
-            Assert.IsTrue(checker.IsBreak(new List<string>() { "v1" }, true));
+            Assert.IsTrue(checker.IsBreak(new List<Func<dynamic, object>>() { b => b.v1 }, true));
         }
         [TestMethod]
         public void ValueIterator_OnFirstRow_IsNoFooterBreak()
         {
             ValueIterator checker = new ValueIterator();
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" } }));
-            Assert.IsFalse(checker.IsBreak(new List<string>() { "v1" }, false));
+            Assert.IsFalse(checker.IsBreak(new List<Func<dynamic, object>>() { b => b.v1 }, false));
         }
         [TestMethod]
         public void ValueIterator_TwoEqualRowsRow_IsNotBreak()
@@ -32,8 +32,8 @@ namespace FormEngine.Tests
             ValueIterator checker = new ValueIterator();
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "x" } }));
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" }, { "v2", "y" } }));
-            Assert.IsFalse(checker.IsBreak(new List<string>() { "v1" }, true));
-            Assert.IsTrue(checker.IsBreak(new List<string>() { "v2" }, true));
+            Assert.IsFalse(checker.IsBreak(new List<Func<dynamic, object>>() { b => b.v1 }, true));
+            Assert.IsTrue(checker.IsBreak(new List<Func<dynamic, object>>() { b => b.v2 }, true));
         }
         [TestMethod]
         public void ValueIterator_NoBreakColumns_IsNotBreak()
@@ -41,7 +41,7 @@ namespace FormEngine.Tests
             ValueIterator checker = new ValueIterator();
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" } }));
             checker.IterateTo(new Values(new Dictionary<string, object> { { "v1", "1" } }));
-            Assert.IsFalse(checker.IsBreak(new List<string>(), true));
+            Assert.IsFalse(checker.IsBreak(new List<Func<dynamic, object>>(), true));
             Assert.IsFalse(checker.IsBreak(null, true));
         }
     }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 
 namespace FormEngine.Interfaces
@@ -13,7 +14,7 @@ namespace FormEngine.Interfaces
         public SectionType sectionType { get { return _sectionType; } set { _sectionType = value; } }
         public bool isHeader = true;
         public bool pageBreak = false;
-        public List<string> breakColumns;
+        public List<Func<dynamic, object>> breakColumns;
         public List<Field> fields;
         public List<Image> images;
         public decimal width;

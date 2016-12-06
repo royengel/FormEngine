@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FormEngine.Interfaces
 {
-    public interface IValues
+    public abstract class IValues : DynamicObject
     {
-        string Get(string valueName, string format = null);
+        public abstract string Get(string valueName);
+
+        public override bool TryGetMember(GetMemberBinder binder,
+                                  out object result)
+        {
+            result = Get(binder.Name);
+            return result == null ? false : true;
+        }
     }
 }

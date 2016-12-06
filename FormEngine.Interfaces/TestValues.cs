@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Dynamic;
 using System.Linq;
 
 namespace FormEngine.Interfaces
 {
-    public class TestValues : IValues
+    public class TestValues : DynamicObject
     {
         private Form form;
 
@@ -12,20 +13,22 @@ namespace FormEngine.Interfaces
             this.form = form;
         }
 
-        public string Get(string valueName, string format = null)
+        public override bool TryGetMember(GetMemberBinder binder,
+                                  out object result)
         {
-            foreach(Report p in form.reports)
+            result = null;
+            foreach (Report p in form.reports)
             {
                 foreach(Section s in p.sections)
                 {
                     foreach(Field f in s.fields)
                     {
-                        if (f.name == valueName)
-                            return f.testValue.Trim();
+                        if (f.name == binder.Name)
+                            result = f.testValue.Trim();
                     }
                 }
             }
-            return "";
+            return result == null ? false : true;
         }
     }
 }

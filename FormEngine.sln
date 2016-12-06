@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine", "FormEngine\FormEngine.csproj", "{C335E0C5-36AA-4AB0-BBE3-02B470087F18}"
 EndProject
@@ -20,6 +20,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.CsvValues", "FormEngine.CsvValues\FormEngine.CsvValues.csproj", "{94361C61-2A82-4C7A-8ACB-231910BEA26D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceImplementationsForTest", "InterfaceImplementationsForTest\InterfaceImplementationsForTest.csproj", "{39A89993-456A-4D77-9884-A8117FD8765F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7F077236-BDBA-4E91-B4CB-F599EB4BA65A}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

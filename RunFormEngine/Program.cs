@@ -160,26 +160,98 @@ namespace RunFormEngine
 
         private static void MakePdf(string formName, string outFileName, string valueKey, string valuesProviderDll, string valuesProviderClass, string formBuilderDll, string resourcesDll, string resourcesArgument)
         {
+            IEnumerable<dynamic> values = new List<dynamic> {
+            new {
+                a =
+@"Nesten alle økonomiske indikatorer har
+kommet siden september tyder på at
+rentebanen skal ned. Rapporten fra
+Regionalt nettverk bare bekrefter dette,
+sier sjeføkonom Kari Due-Andresen i
+Handelsbanken Capital Markets til
+Nettavisen. Rapporten fra Regionalt
+nettverk dette kvartalet tyder på at den
+økonomiske veksten i Norge vil fortsette
+å øke i tiden fremover, men er likevel
+svakere enn ventet.",
+                b = "Nesten alle økonomiske indikatorer har kommet siden september tyder på at rentebanen skal ned. Rapporten fra Regionalt nettverk bare bekrefter dette, sier sjeføkonom Kari Due-Andresen i Handelsbanken Capital Markets til Nettavisen. Rapporten fra Regionalt nettverk dette kvartalet tyder på at den økonomiske veksten i Norge vil fortsette å øke i tiden fremover, men er likevel svakere enn ventet."
+            }};
+
+            Form f = new Form()
+            {
+                pageSize = PageSize.A4,
+                fontSize = 10,
+                reports = new List<Report>
+                {
+                    new Report()
+                    {
+                        sections = new List<Section>()
+                        {
+                            new Section()
+                            {
+                                sectionType = SectionType.Detail,
+                                fields = new List<Field>()
+                                {
+                                    new Field() { y = 0.0M, x = .5M, value = v => "----------------------------------------------------------------------" },
+                                }
+                            },
+                            new Section()
+                            {
+                                sectionType = SectionType.Detail,
+                                fields = new List<Field>()
+                                {
+                                    new Field() { y = 0.0M, x = 1M, width = 6.5M, value = v => v.a }
+                                }
+                            },
+                            new Section()
+                            {
+                                sectionType = SectionType.Detail,
+                                fields = new List<Field>()
+                                {
+                                    new Field() { y = 0.0M, x = .5M, value = v => "----------------------------------------------------------------------" },
+                                }
+                            },
+                            new Section()
+                            {
+                                sectionType = SectionType.Detail,
+                                fields = new List<Field>()
+                                {
+                                    new Field() { y = 0.0M, x = 1M, width = 6.5M, alignment = "right", value = v => v.b }
+                                }
+                            },
+                            new Section()
+                            {
+                                sectionType = SectionType.Detail,
+                                fields = new List<Field>()
+                                {
+                                    new Field() { y = 0.0M, x = .5M, value = v => "----------------------------------------------------------------------" },
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
             try
             {
                 IResources files = ClassFactory<IResources>.Instanciate(resourcesDll, "", resourcesArgument);
                 Console.WriteLine("IResources: {0} ({1})", files.GetType().ToString(), resourcesArgument);
 
-                IEnumerable<IValues> values = null;
-                if (!string.IsNullOrWhiteSpace(valuesProviderDll) || !string.IsNullOrWhiteSpace(valuesProviderClass))
-                {
-                    IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
-                    if (provider != null)
-                    {
-                        Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
-                        values = provider.GetValues(files, valueKey);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error: values dll: \"{0}\" / values class: \"{1}\" could not be found!", valuesProviderDll, valuesProviderClass);
-                        return;
-                    }
-                }
+                // IEnumerable<IValues> values = null;
+                //if (!string.IsNullOrWhiteSpace(valuesProviderDll) || !string.IsNullOrWhiteSpace(valuesProviderClass))
+                //{
+                //    IValuesProvider provider = ClassFactory<IValuesProvider>.Instanciate(valuesProviderDll, valuesProviderClass);
+                //    if (provider != null)
+                //    {
+                //        Console.WriteLine("IValuesProvider: {0} ({1})", provider.GetType().ToString(), valueKey);
+                //        values = provider.GetValues(files, valueKey);
+                //    }
+                //    else
+                //    {
+                //        Console.WriteLine("Error: values dll: \"{0}\" / values class: \"{1}\" could not be found!", valuesProviderDll, valuesProviderClass);
+                //        return;
+                //    }
+                //}
 
                 bool ok = false;
                 using (FileStream OutStream = new FileStream(outFileName, FileMode.Create))
@@ -187,7 +259,7 @@ namespace RunFormEngine
                     IFormBuilder builder = ClassFactory<IFormBuilder>.Instanciate(formBuilderDll, "", OutStream, files);
                     MakeForm form = new MakeForm(builder);
                     Console.WriteLine("IFormBuilder: {0}", builder.GetType().ToString());
-                    ok = form.Execute(files, values, formName);
+                    ok = form.Execute(files, values, f);
                     OutStream.Close();
                 }
                 Console.WriteLine("Produced " + outFileName + (ok ? " successfully!" : " with errors!"));

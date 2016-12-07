@@ -6,6 +6,7 @@ using PdfSharp.Drawing.Layout;
 using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FormEngine.PdfFormBuilder
 {
@@ -47,69 +48,112 @@ namespace FormEngine.PdfFormBuilder
 
         public void AddText(string fieldName, string text, string alignment, string font, decimal fontSize, Interfaces.FontStyle fontStyle, ColourName colour, decimal x, decimal y, decimal width, decimal height)
         {
+            if (string.IsNullOrEmpty(text))
+                return;
+
             XFontStyle style = ConvertFontStyle(fontStyle);
             XFont xFont = new XFont(font, (double) fontSize, style);
-            XRect rectangle = new XRect() { X = XUnit.FromCentimeter((double)x), Y = XUnit.FromCentimeter((double)y) };
             XBrush brush = CreateXBrush(colour);
+            XStringFormat format = new XStringFormat() { Alignment = XStringAlignment.Center };
+            XSize size = xGraphics.MeasureString("I", xFont);
+            double lineHeight = size.Height;
+            double currentY = 0;
+            double yOffset = XUnit.FromCentimeter((double)y);
+            double XUnitHeight = XUnit.FromCentimeter((double)height);
 
+            List<string> lines;
             if (width > 0)
-            {
-                XTextFormatter textFormatter = new XTextFormatter(xGraphics);
-
-                rectangle.Width = XUnit.FromCentimeter((double)width);
-                if (height <= 0)
-                    rectangle.Height = XUnit.FromCentimeter(50);
-                else
-                    rectangle.Height = XUnit.FromCentimeter((double)height);
-
-                textFormatter.Alignment = GetXParagraphAlignment(alignment);
-
-                textFormatter.DrawString(text, xFont, brush, rectangle, XStringFormats.TopLeft);
-            }
+                lines = SplitText(text, xFont, style, XUnit.FromCentimeter((double)width)).ToList();
             else
             {
-                XStringFormat format = new XStringFormat() { Alignment = XStringAlignment.Near };
+                lines = new List<string>() { text };
+                width = GetWidth() - x; 
+            }
+            foreach (string line in lines)
+            {
+                if (height <= 0 || currentY + lineHeight < XUnitHeight)
+                {
+                    XRect rectangle = new XRect() { X = XUnit.FromCentimeter((double)x), Y = yOffset + currentY };
+                    //xGraphics.DrawString(line, xFont, brush, rectangle, format);
 
-                xGraphics.DrawString(text, xFont, brush, rectangle, format);
+                    XTextFormatter textFormatter = new XTextFormatter(xGraphics);
+
+                    rectangle.Width = XUnit.FromCentimeter((double)width);
+                    rectangle.Height = lineHeight;
+                    textFormatter.Alignment = GetXParagraphAlignment(alignment);
+
+                    textFormatter.DrawString(line, xFont, brush, rectangle, XStringFormats.TopLeft);
+
+                    currentY += lineHeight;
+                }
             }
         }
 
-        private const double wastedSpaceFactor = 18; // Higher number gives higher factor
         public decimal MeasureTextHeight(string text, string font, decimal fontSize, Interfaces.FontStyle fontStyle, decimal width, decimal height)
         {
             if (height > 0)
                 return height;
 
+            if (string.IsNullOrEmpty(text))
+                return 0;
+
             XFontStyle style = ConvertFontStyle(fontStyle);
             XFont xFont = new XFont(font, (double)fontSize, style);
-
-            var lines = text.Split('\n');
-
-            double totalHeight = 0;
-            if (width == 0M)
-                width = 9999;
-
-            foreach (string line in lines)
+            XSize size = xGraphics.MeasureString("I", xFont);
+            double lineHeight = size.Height;
+            int lineCount = 1;
+            if (width > 0M)
             {
-                XSize size = xGraphics.MeasureString(line, xFont);
-                if (size.Height > 0)
+                lineCount = SplitText(text, xFont, style, XUnit.FromCentimeter((double)width)).Count();
+            }
+            XUnit xHeight = XUnit.FromPoint(lineCount * lineHeight);
+            return (decimal)xHeight.Centimeter;
+        }
+
+        private IEnumerable<string> SplitText(string text, XFont xFont, XFontStyle style, double width)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                var lines = text.Split('\n');
+                foreach (string line in lines)
                 {
-                    if (size.Width > XUnit.FromCentimeter((double)width))
+                    string rest = line;
+                    while (rest.Length > 0)
                     {
-                        double charactersPrLine = line.Length / (size.Width / XUnit.FromCentimeter((double)width));
-                        double factor = wastedSpaceFactor / charactersPrLine;
-                        double numberOfLines = Math.Ceiling(size.Width * (1 + factor) / XUnit.FromCentimeter((double)width));
-                        double h = size.Height * numberOfLines;
-                        totalHeight += h;
-                    }
-                    else
-                    {
-                        totalHeight += size.Height;
+                        XSize size = xGraphics.MeasureString(rest, xFont);
+                        if (size.Width > width)
+                        {
+                            yield return LargestPossibleText(rest, xFont, style, width, out rest);
+                        }
+                        else
+                        {
+                            yield return rest;
+                            rest = "";
+                        }
                     }
                 }
             }
-            XUnit xHeight = XUnit.FromPresentation(totalHeight);
-            return (decimal)xHeight.Centimeter;
+        }
+
+        private string LargestPossibleText(string line, XFont xFont, XFontStyle style, double width, out string rest)
+        {
+            char[] splitChars = new char[] { ' ', '-', '/' };
+            int p = 0;
+            int n;
+            while ((n = line.IndexOfAny(splitChars, p + 1)) >= 0)
+            {
+                XSize size = xGraphics.MeasureString(line.Substring(0, n), xFont);
+                if (size.Width > width)
+                {
+                    if (p == 0)
+                        p = n;
+                    rest = line.Substring(p).TrimStart();
+                    return line.Substring(0, p);
+                }
+                p = n;
+            }
+            rest = "";
+            return line;
         }
 
         private XBrush CreateXBrush(ColourName colour)

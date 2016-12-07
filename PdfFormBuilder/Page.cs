@@ -77,6 +77,9 @@ namespace FormEngine.PdfFormBuilder
         private const double wastedSpaceFactor = 18; // Higher number gives higher factor
         public decimal MeasureTextHeight(string text, string font, decimal fontSize, Interfaces.FontStyle fontStyle, decimal width, decimal height)
         {
+            if (height > 0)
+                return height;
+
             XFontStyle style = ConvertFontStyle(fontStyle);
             XFont xFont = new XFont(font, (double)fontSize, style);
 

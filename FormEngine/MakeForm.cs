@@ -16,6 +16,7 @@ namespace FormEngine
 
         private IFormBuilder builder = null;
         private IFormPage currentPage = null;
+        private bool hasErrors = false;
         private decimal currentVerticalPosition = 0;
         private ValueIterator valueIterator = null;
 
@@ -26,6 +27,9 @@ namespace FormEngine
 
         public bool Execute(IResources files, IEnumerable<dynamic> values, string form)
         {
+            if (hasErrors)
+                return false;
+
             Form formSpec;
             try
             {
@@ -44,29 +48,37 @@ namespace FormEngine
 
         public bool Execute(IResources files, IEnumerable<dynamic> values, Form formSpec, bool finalize = true)
         {
+            if (hasErrors)
+                return false;
+
             try
             {
-                this.files = files;
-                this.values = values;
-                //string test = JsonConvert.SerializeObject(formSpec);
-                if (this.values == null)
-                    this.values = formSpec.TestValues();
-
-                foreach (Report r in formSpec.reports)
-                {
-                    ExecuteReport(formSpec, r);
-                }
-                if (finalize)
-                    builder.Finalize();
-
-                return true;
+                return ExecuteNoExceptionHandling(files, values, formSpec, finalize);
             }
             catch (Exception ex)
             {
                 ExceptionPdf(ex);
-
+                hasErrors = true;
                 return false;
             }
+        }
+
+        private bool ExecuteNoExceptionHandling(IResources files, IEnumerable<dynamic> values, Form formSpec, bool finalize)
+        {
+            this.files = files;
+            this.values = values;
+            //string test = JsonConvert.SerializeObject(formSpec);
+            if (this.values == null)
+                this.values = formSpec.TestValues();
+
+            foreach (Report r in formSpec.reports)
+            {
+                ExecuteReport(formSpec, r);
+            }
+            if (finalize)
+                builder.Finalize();
+
+            return true;
         }
 
         private void ExceptionPdf(Exception ex)
@@ -89,7 +101,7 @@ namespace FormEngine
                     }
             };
             IEnumerable<dynamic> values = new List<dynamic> { new Values(new Dictionary<string, object> { { "exception", ex.ToString() } }) };
-            Execute(files, values, formSpec);
+            ExecuteNoExceptionHandling(files, values, formSpec, true);
         }
 
         private void ExecuteReport(Form formSpec, Report report)
@@ -188,8 +200,13 @@ namespace FormEngine
             }
         }
 
+        int recursonCounter = 0;
         private void ExecuteSection(Form formSpec, Report report, Section section, dynamic values)
         {
+            recursonCounter++;
+            if (recursonCounter > 10)
+                throw new Exception("Internal error, max number of inceptions reached.");
+
             if (section.images != null)
                 foreach (Image image in section.images)
                     ExecuteImage(formSpec, report, section, image, values);
@@ -200,6 +217,8 @@ namespace FormEngine
 
             lastExecutedSectionType = section.sectionType;
             currentVerticalPosition += CalculateSectionHeight(formSpec, report, section, values);
+
+            recursonCounter--;
         }
 
         private decimal CalculateSectionHeight(Form formSpec, Report report, Section section, dynamic values)

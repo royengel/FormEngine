@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>FormEngine</id>
-    <version>1.0.0.0</version>
+    <version>1.0.1</version>
     <authors>Roy Engelstad</authors>
     <owners>Roy Engelstad</owners>
     <projectUrl>https://github.com/royengel/FormEngine</projectUrl>

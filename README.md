@@ -6,4 +6,4 @@ The Form specifiaction can be provided programatically.
 
 ## License
 
-Code licensed under the MIT license. Documentation licensed under CC BY 3.0.
+Code licensed under the MIT license.

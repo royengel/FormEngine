@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>FormEngine</id>
+    <version>1.0.1</version>
+    <authors>Roy Engelstad</authors>
+    <owners>Roy Engelstad</owners>
+    <projectUrl>https://github.com/royengel/FormEngine</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Form generation tool</description>
+    <releaseNotes>Initial version</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>FormEngine</tags>
+    <dependencies>
+      <dependency id="Newtonsoft.Json" version="9.0.1" />
+      <dependency id="PDFsharp" version="1.32.3057" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin45\Release\FormEngine.dll" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.pdb" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.FileSystem.dll" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.FileSystem.pdb" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.Interfaces.pdb" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.Interfaces.dll" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.PdfFormBuilder.pdb" target="lib\net45" />
+    <file src="bin45\Release\FormEngine.PdfFormBuilder.dll" target="lib\net45" />
+  </files>
+</package>

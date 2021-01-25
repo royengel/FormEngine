@@ -1,28 +1,27 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine", "FormEngine\FormEngine.csproj", "{C335E0C5-36AA-4AB0-BBE3-02B470087F18}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45", "FormEngineFw45\FormEngineFw45.csproj", "{C335E0C5-36AA-4AB0-BBE3-02B470087F18}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.Interfaces", "FormEngine.Interfaces\FormEngine.Interfaces.csproj", "{EA811C0F-D9C3-4F75-A622-1906305B0B44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45.Interfaces", "FormEngineFw45.Interfaces\FormEngineFw45.Interfaces.csproj", "{EA811C0F-D9C3-4F75-A622-1906305B0B44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.FileSystem", "FileSystem\FormEngine.FileSystem.csproj", "{8F3D143D-E872-41E5-B0F9-4501706ACC5C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45.FileSystem", "FileSystemFw45\FormEngineFw45.FileSystem.csproj", "{8F3D143D-E872-41E5-B0F9-4501706ACC5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.PdfFormBuilder", "PdfFormBuilder\FormEngine.PdfFormBuilder.csproj", "{B00377F7-BF10-44B0-B7CC-CF6550034675}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45.PdfFormBuilder", "PdfFormBuilderFw45\FormEngineFw45.PdfFormBuilder.csproj", "{B00377F7-BF10-44B0-B7CC-CF6550034675}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunFormEngine", "RunFormEngine\RunFormEngine.csproj", "{8CFFDBBF-2C19-41E5-ACA9-AFB76F8A538E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RunFormEngineFw45", "RunFormEngineFw45\RunFormEngineFw45.csproj", "{8CFFDBBF-2C19-41E5-ACA9-AFB76F8A538E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.Tests", "FormEngine.Tests\FormEngine.Tests.csproj", "{AD9FC009-D08B-490F-9DD6-82EE1296EB60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45.Tests", "FormEngineFw45.Tests\FormEngineFw45.Tests.csproj", "{AD9FC009-D08B-490F-9DD6-82EE1296EB60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySqlAdaptor", "MySqlAdaptor\MySqlAdaptor.csproj", "{7732880F-E16F-4038-9837-6E52FB6C0629}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngine.CsvValues", "FormEngine.CsvValues\FormEngine.CsvValues.csproj", "{94361C61-2A82-4C7A-8ACB-231910BEA26D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterfaceImplementationsForTest", "InterfaceImplementationsForTest\InterfaceImplementationsForTest.csproj", "{39A89993-456A-4D77-9884-A8117FD8765F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FormEngineFw45.CsvValues", "FormEngineFw45.CsvValues\FormEngineFw45.CsvValues.csproj", "{94361C61-2A82-4C7A-8ACB-231910BEA26D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7F077236-BDBA-4E91-B4CB-F599EB4BA65A}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		FormEngine.nuspec = FormEngine.nuspec
+		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -56,20 +55,15 @@ Global
 		{AD9FC009-D08B-490F-9DD6-82EE1296EB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD9FC009-D08B-490F-9DD6-82EE1296EB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD9FC009-D08B-490F-9DD6-82EE1296EB60}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7732880F-E16F-4038-9837-6E52FB6C0629}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7732880F-E16F-4038-9837-6E52FB6C0629}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7732880F-E16F-4038-9837-6E52FB6C0629}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7732880F-E16F-4038-9837-6E52FB6C0629}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94361C61-2A82-4C7A-8ACB-231910BEA26D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39A89993-456A-4D77-9884-A8117FD8765F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39A89993-456A-4D77-9884-A8117FD8765F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39A89993-456A-4D77-9884-A8117FD8765F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39A89993-456A-4D77-9884-A8117FD8765F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46EE40DB-371E-448E-9A98-BBFA32816142}
 	EndGlobalSection
 EndGlobal

@@ -14,7 +14,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfigurationFW: 'ReleaseFw45'
   buildConfiguration: 'Release'
-  major: 0
+  major: 1
   minor: 1
   build: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 1)]
   version: $[format('{0}.{1}.{2}', variables['major'], variables['minor'], variables['build']) ]
@@ -59,15 +59,15 @@ steps:
     projects: '**/*Tests.csproj'
     testRunTitle: 'Run Tests'
 
-- task: CopyFiles@2
+- task: NuGetCommand@2
+  displayName: 'NuGet pack'
   inputs:
-    SourceFolder: '$(Build.Repository.LocalPath)'
-    Contents: 'Install.ps1'
-    TargetFolder: '$(Build.StagingDirectory)'
+    command: pack
+    packagesToPack: FormEngine.nuspec
 
-- task: PublishPipelineArtifact@1
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
   inputs:
-    targetPath: '$(Build.StagingDirectory)'
-    artifact: 'FormEngine'
-    publishLocation: 'pipeline'
-
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'Nuget - royengel - FormEngine'

@@ -30,8 +30,6 @@
     <file src="bin45\Release\FormEngine.Interfaces.dll" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.pdb" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.dll" target="lib\net45" />
-  </files>
-  <files>
     <file src="bin\Release\netcoreapp3.1\FormEngine.dll" target="lib\netcore" />
     <file src="bin\Release\netcoreapp3.1\FormEngine.pdb" target="lib\netcore" />
     <file src="bin\Release\netcoreapp3.1\FormEngine.FileSystem.dll" target="lib\netcore" />

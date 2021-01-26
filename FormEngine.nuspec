@@ -30,13 +30,13 @@
     <file src="bin45\Release\FormEngine.Interfaces.dll" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.pdb" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.dll" target="lib\net45" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.dll" target="lib\netcore" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.pdb" target="lib\netcore" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.FileSystem.dll" target="lib\netcore" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.FileSystem.pdb" target="lib\netcore" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.Interfaces.pdb" target="lib\netcore" />
-    <file src="bin\Release\netcoreapp3.1\FormEngine.Interfaces.dll" target="lib\netcore" />
-    <file src="bin\Release\\netstandard2.0\FormEngine.PdfFormBuilder.pdb" target="lib\netcore" />
-    <file src="bin\Release\\netstandard2.0\FormEngine.PdfFormBuilder.dll" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.dll" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.pdb" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.FileSystem.dll" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.FileSystem.pdb" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.Interfaces.pdb" target="lib\netcore" />
+    <file src="bin\netcoreapp3.1\FormEngine.Interfaces.dll" target="lib\netcore" />
+    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.pdb" target="lib\netcore" />
+    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.dll" target="lib\netcore" />
   </files>
 </package>

@@ -64,6 +64,8 @@ steps:
   inputs:
     command: pack
     packagesToPack: FormEngine.nuspec
+    versioningScheme: byEnvVar
+    versionEnvVar: version
 
 - task: NuGetCommand@2
   displayName: 'NuGet push'

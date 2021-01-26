@@ -9,15 +9,16 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Form generation tool</description>
     <releaseNotes>Initial version</releaseNotes>
-    <copyright>Copyright 2016</copyright>
+    <copyright>Copyright 2021</copyright>
     <tags>FormEngine</tags>
     <dependencies>
       <group targetFramework="net45">
         <dependency id="Newtonsoft.Json" version="9.0.1" />
         <dependency id="PDFsharp" version="1.32.3057" />
       </group>
-      <group targetFramework="netcore">
+      <group targetFramework="netstandard2.0">
         <dependency id="PdfSharpCore" version="1.2.11" />
+        <dependency id="Microsoft.CSharp" version="4.7.0" />
       </group>
     </dependencies>
   </metadata>
@@ -30,13 +31,13 @@
     <file src="bin45\Release\FormEngine.Interfaces.dll" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.pdb" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.dll" target="lib\net45" />
-    <file src="bin\netcoreapp3.1\FormEngine.dll" target="lib\netcore" />
-    <file src="bin\netcoreapp3.1\FormEngine.pdb" target="lib\netcore" />
-    <file src="bin\netcoreapp3.1\FormEngine.FileSystem.dll" target="lib\netcore" />
-    <file src="bin\netcoreapp3.1\FormEngine.FileSystem.pdb" target="lib\netcore" />
-    <file src="bin\netcoreapp3.1\FormEngine.Interfaces.pdb" target="lib\netcore" />
-    <file src="bin\netcoreapp3.1\FormEngine.Interfaces.dll" target="lib\netcore" />
-    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.pdb" target="lib\netcore" />
-    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.dll" target="lib\netcore" />
+    <file src="bin\netstandard2.0\FormEngine.dll" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.pdb" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.FileSystem.dll" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.FileSystem.pdb" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.Interfaces.pdb" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.Interfaces.dll" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.pdb" target="lib\netstandard2.0" />
+    <file src="bin\netstandard2.0\FormEngine.PdfFormBuilder.dll" target="lib\netstandard2.0" />
   </files>
 </package>

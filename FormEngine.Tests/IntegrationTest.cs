@@ -19,7 +19,7 @@ namespace FormEngine.Tests
             this.output = output;
         }
 
-        [Fact (Skip="Integration test")]
+        [Fact]// (Skip="Integration test")]
         public void WhenCreateForm_ThenGotAPdf()
         {
             IEnumerable<dynamic> values = new List<dynamic> {
@@ -51,6 +51,7 @@ namespace FormEngine.Tests
                                 {
                                     new Field { y = 0.0M, x = .5M, value = v => "---------------------*************** Hey ***************---------------" },
                                     new Field { y = 0.6M, x = 1M, width = 8M, value = v => v.Tekst },
+                                    new Field { y = 0.6M, x = 15M, value = v => DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss") },
                                 },
                                 images = new List<Image>
                                 {
@@ -62,7 +63,7 @@ namespace FormEngine.Tests
                                 sectionType = SectionType.FormHeader,
                                 fields = new List<Field>()
                                 {
-                                    new Field() { y = 0.0M, x = .5M, value = v => "----------------------------------------------------------------------" },
+                                    new Field() { y = 0.0M, x = .5M, value = v => "------------------------------------------------------------------------------------------------------------------------------------" },
                                 }
                             },
                             new Section
@@ -71,7 +72,7 @@ namespace FormEngine.Tests
                                 fields = new List<Field>()
                                 {
                                     new Field() { y = 0.0M, x = 1M, width = 3M, value = v => v.Vare },
-                                    new Field() { y = 0.0M, x = 8M, width = 3M, alignment = "right", value = v => v.Pris.ToString() },
+                                    new Field() { y = 0.0M, x = 8M, width = 3M, alignment = "right", value = v => v.Pris.ToString("0.00") },
                                 }
                             }
                         }

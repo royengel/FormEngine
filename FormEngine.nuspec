@@ -12,11 +12,11 @@
     <copyright>Copyright 2016</copyright>
     <tags>FormEngine</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.5">
+      <group targetFramework="net45">
         <dependency id="Newtonsoft.Json" version="9.0.1" />
         <dependency id="PDFsharp" version="1.32.3057" />
       </group>
-      <group targetFramework="netcoreapp3.1">
+      <group targetFramework="netcore">
         <dependency id="PdfSharpCore" version="1.2.11" />
       </group>
     </dependencies>

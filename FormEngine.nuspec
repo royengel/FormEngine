@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>FormEngine</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <authors>Roy Engelstad</authors>
     <owners>Roy Engelstad</owners>
     <projectUrl>https://github.com/royengel/FormEngine</projectUrl>
@@ -12,8 +12,13 @@
     <copyright>Copyright 2016</copyright>
     <tags>FormEngine</tags>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="9.0.1" />
-      <dependency id="PDFsharp" version="1.32.3057" />
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="Newtonsoft.Json" version="9.0.1" />
+        <dependency id="PDFsharp" version="1.32.3057" />
+      </group>
+      <group targetFramework="netcoreapp3.1">
+        <dependency id="PdfSharpCore" version="1.2.11" />
+      </group>
     </dependencies>
   </metadata>
   <files>
@@ -25,5 +30,15 @@
     <file src="bin45\Release\FormEngine.Interfaces.dll" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.pdb" target="lib\net45" />
     <file src="bin45\Release\FormEngine.PdfFormBuilder.dll" target="lib\net45" />
+  </files>
+  <files>
+    <file src="bin\Release\netcoreapp3.1\FormEngine.dll" target="lib\netcore" />
+    <file src="bin\Release\netcoreapp3.1\FormEngine.pdb" target="lib\netcore" />
+    <file src="bin\Release\netcoreapp3.1\FormEngine.FileSystem.dll" target="lib\netcore" />
+    <file src="bin\Release\netcoreapp3.1\FormEngine.FileSystem.pdb" target="lib\netcore" />
+    <file src="bin\Release\netcoreapp3.1\FormEngine.Interfaces.pdb" target="lib\netcore" />
+    <file src="bin\Release\netcoreapp3.1\FormEngine.Interfaces.dll" target="lib\netcore" />
+    <file src="bin\Release\\netstandard2.0\FormEngine.PdfFormBuilder.pdb" target="lib\netcore" />
+    <file src="bin\Release\\netstandard2.0\FormEngine.PdfFormBuilder.dll" target="lib\netcore" />
   </files>
 </package>

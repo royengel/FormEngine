@@ -1,0 +1,73 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfigurationFW: 'ReleaseFw45'
+  buildConfiguration: 'Release'
+  major: 0
+  minor: 1
+  build: $[counter(format('{0}.{1}', variables['major'], variables['minor']), 1)]
+  version: $[format('{0}.{1}.{2}', variables['major'], variables['minor'], variables['build']) ]
+  name: $[format('{0}.{1}.{2} (#{3})', variables['major'], variables['minor'], variables['build'], variables['Rev:r'])]
+
+steps:
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      Write-Host "Version: $(version)"
+      $shortDate = $(Get-Date -Format "yyyyMMddHHmm")
+      $commit = "$(Build.SourceVersion)".Substring(0, 8)
+      $sourceRevisionId = "$shortDate.$commit"
+      Write-Host "##vso[task.setvariable variable=sourceRevisionId]$sourceRevisionId"
+
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  displayName: 'Build solution for .Net Framework **\*.sln'
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfigurationFW)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build $(buildConfiguration)'
+  inputs:
+    command: 'build'
+    arguments: '--configuration $(buildConfiguration) /p:SourceRevisionId=$(sourceRevisionId)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: 'test'
+    projects: '**/*Tests.csproj'
+    testRunTitle: 'Run Tests'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.Repository.LocalPath)'
+    Contents: 'Install.ps1'
+    TargetFolder: '$(Build.StagingDirectory)'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.StagingDirectory)'
+    artifact: 'FormEngine'
+    publishLocation: 'pipeline'
+

@@ -1,12 +1,12 @@
 ﻿using System;
 using FormEngine.Interfaces;
-using PdfSharp.Pdf;
-using PdfSharp.Drawing;
-using PdfSharp.Drawing.Layout;
 using System.Drawing;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using PdfSharpCore.Pdf;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Drawing.Layout;
 
 namespace FormEngine.PdfFormBuilder
 {
@@ -37,10 +37,11 @@ namespace FormEngine.PdfFormBuilder
             XImage xImg;
             if (!imageCache.TryGetValue(file, out xImg))
             {
-                byte[] imgFile = files.Get(file);
-                Stream imgStream = new MemoryStream(imgFile);
-                System.Drawing.Image image = System.Drawing.Image.FromStream(imgStream);
-                xImg = XImage.FromGdiPlusImage(image);
+                xImg = XImage.FromStream(() =>
+                {
+                    byte[] imgFile = files.Get(file);
+                    return new MemoryStream(imgFile);
+                });
                 imageCache[file] = xImg;
             }
             return xImg;
@@ -479,16 +480,16 @@ namespace FormEngine.PdfFormBuilder
             return (decimal) page.Width.Centimeter;
         }
 
-        private PdfSharp.PageSize ConvertToPdfSharpPageSize(Interfaces.PageSize pageSize)
+        private PdfSharpCore.PageSize ConvertToPdfSharpPageSize(Interfaces.PageSize pageSize)
         {
             switch (pageSize)
             {
                 case Interfaces.PageSize.A4:
-                    return PdfSharp.PageSize.A4;
+                    return PdfSharpCore.PageSize.A4;
                 case Interfaces.PageSize.Letter:
-                    return PdfSharp.PageSize.Letter;
+                    return PdfSharpCore.PageSize.Letter;
                 default:
-                    return PdfSharp.PageSize.Undefined;
+                    return PdfSharpCore.PageSize.Undefined;
             }
         }
 

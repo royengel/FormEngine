@@ -4,6 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>../bin</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PdfSharpCore" Version="1.2.11" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FormEngine.Interfaces\FormEngine.Interfaces.csproj" />
   </ItemGroup>
